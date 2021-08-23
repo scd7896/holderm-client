@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "sourceMap": true,
+    "module": "CommonJS",
+    "target": "es5",
+    "lib": ["ES2019", "ESNext", "DOM"],
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "typeRoots": ["./types"]
+  }
+}

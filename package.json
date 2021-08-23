@@ -1,0 +1,23 @@
+{
+  "name": "phasergame",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "webpack --watch",
+    "serve": "http-server -p 10000 ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^13.0.0",
+    "phaser": "^3.55.2",
+    "typescript": "^4.3.5",
+    "webpack": "^5.51.1"
+  },
+  "devDependencies": {
+    "babel-loader": "^8.2.2",
+    "ts-loader": "^9.2.5",
+    "webpack-cli": "^4.8.0"
+  }
+}
