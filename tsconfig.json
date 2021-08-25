@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "sourceMap": true,
-    "module": "CommonJS",
-    "target": "es5",
-    "lib": ["ES2019", "ESNext", "DOM"],
+    "outDir": "./dist/",
     "noImplicitAny": false,
-    "moduleResolution": "node",
-    "types": ["jest", "node"]
+    "module": "es6",
+    "target": "es5",
+    "jsx": "react",
+    "allowJs": true,
+    "moduleResolution": "node"
   }
 }

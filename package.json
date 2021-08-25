@@ -6,7 +6,7 @@
   "scripts": {
     "watch": "webpack --watch",
     "serve": "http-server -p 10000 .",
-    "test": "jest"
+    "test": "jest --watch"
   },
   "author": "",
   "license": "ISC",
@@ -28,5 +28,11 @@
     "ts-loader": "^9.2.5",
     "ts-node": "^10.2.1",
     "webpack-cli": "^4.8.0"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>",
+      "/home/some/path/"
+    ]
   }
 }
