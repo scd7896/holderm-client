@@ -1,43 +1,5 @@
 import { Card, Genealogy, GenealogyResult, Result } from "../../types";
 
-export const isStraightFlush = (cards: Card[]): Result => {
-	const flushCheck = isFlush(cards);
-	if (flushCheck.success) {
-		const flushCards = flushCheck.useNumbers.map((number) => {
-			const card = new Card();
-			card.suit = "spades";
-			card.number = number;
-			return card;
-		});
-
-		const straightCheck = isStraight(flushCards);
-		const useNumbers = straightCheck.useNumbers.sort((a, b) => a - b);
-		if (straightCheck.success)
-			return {
-				success: true,
-				useNumbers,
-			};
-	}
-	return {
-		success: false,
-		useNumbers: [],
-	};
-};
-
-export const isFourCard = (card: Card[]): Result => {
-	return {
-		success: true,
-		useNumbers: [],
-	};
-};
-
-export const isFullHouse = (card: Card[]): Result => {
-	return {
-		success: true,
-		useNumbers: [],
-	};
-};
-
 export const isFlush = (cards: Card[]): Result => {
 	const copyCards: Card[] = JSON.parse(JSON.stringify(cards));
 	copyCards.sort((a, b) => {
@@ -108,27 +70,6 @@ export const isStraight = (cards: Card[]): Result => {
 	};
 };
 
-export const isTriple = (card: Card[]): Result => {
-	return {
-		success: true,
-		useNumbers: [],
-	};
-};
-
-export const isTwoPair = (card: Card[]): Result => {
-	return {
-		success: true,
-		useNumbers: [],
-	};
-};
-
-export const isOnePair = (card: Card[]): Result => {
-	return {
-		success: true,
-		useNumbers: [],
-	};
-};
-
 export const isTopCard = (card: Card[]): Result => {
 	return {
 		success: true,
@@ -137,66 +78,92 @@ export const isTopCard = (card: Card[]): Result => {
 };
 
 export const handCheck = (cards: Card[]): GenealogyResult => {
-	const straightFlush = isStraightFlush(cards);
-	if (straightFlush.success)
-		return {
-			genealogy: Genealogy.STRAIGHTFLUSH,
-			useNumbers: straightFlush.useNumbers,
-		};
+	const sameCards = new Array(15).fill(0);
 
-	const fourCard = isFourCard(cards);
-	if (fourCard.success)
-		return {
-			genealogy: Genealogy.FOURCARD,
-			useNumbers: fourCard.useNumbers,
-		};
-
-	const fullHouseCard = isFullHouse(cards);
-	if (fullHouseCard.success)
-		return {
-			genealogy: Genealogy.FULLHOUSE,
-			useNumbers: fullHouseCard.useNumbers,
-		};
-
-	const flushCard = isFlush(cards);
-	if (flushCard.success)
+	const flushCheck = isFlush(cards);
+	if (flushCheck.success) {
+		const straightCheck = isStraight(flushCheck.useNumbers.map((number) => new Card("spades", number)));
+		if (straightCheck.success)
+			return {
+				genealogy: Genealogy.STRAIGHTFLUSH,
+				useNumbers: straightCheck.useNumbers,
+			};
 		return {
 			genealogy: Genealogy.FLUSH,
-			useNumbers: flushCard.useNumbers,
+			useNumbers: flushCheck.useNumbers,
 		};
+	}
 
-	const straightCard = isStraight(cards);
-	if (straightCard.success)
+	const straightCheck = isStraight(cards);
+	if (straightCheck.success)
 		return {
 			genealogy: Genealogy.STRAIGHT,
-			useNumbers: straightCard.useNumbers,
+			useNumbers: straightCheck.useNumbers,
 		};
 
-	const tripleCard = isTriple(cards);
-	if (tripleCard.success)
+	cards.map((card) => {
+		sameCards[card.number] += 1;
+	});
+
+	const tripleCheck = {
+		success: false,
+		number: 0,
+	};
+
+	let pairs = [];
+
+	for (let i = 0; i < sameCards.length; i++) {
+		const count = sameCards[i];
+		if (count === 4)
+			return {
+				genealogy: Genealogy.FOURCARD,
+				useNumbers: [i],
+			};
+
+		if (count === 3) {
+			tripleCheck.success = true;
+			tripleCheck.number = i;
+		}
+
+		if (count >= 2) {
+			pairs.push(i);
+		}
+	}
+
+	if (tripleCheck.success) {
+		pairs = pairs.filter((number) => number !== tripleCheck.number);
+		const subPair = pairs.pop();
+		if (subPair)
+			return {
+				genealogy: Genealogy.FULLHOUSE,
+				useNumbers: [subPair, tripleCheck.number],
+			};
 		return {
 			genealogy: Genealogy.TRIPLE,
-			useNumbers: tripleCard.useNumbers,
+			useNumbers: [tripleCheck.number],
 		};
+	}
 
-	const twoPairCard = isTwoPair(cards);
-	if (twoPairCard.success)
+	if (pairs.length >= 2) {
+		const firstPair = pairs.pop();
+		const secondPair = pairs.pop();
 		return {
 			genealogy: Genealogy.TWOPAIR,
-			useNumbers: twoPairCard.useNumbers,
+			useNumbers: [secondPair, firstPair],
 		};
+	}
 
-	const onePairCard = isOnePair(cards);
-	if (onePairCard.success)
+	if (pairs.length >= 1) {
 		return {
 			genealogy: Genealogy.ONEPAIR,
-			useNumbers: onePairCard.useNumbers,
+			useNumbers: pairs,
 		};
+	}
 
-	const topCard = isTopCard(cards);
-	if (topCard.success)
-		return {
-			genealogy: Genealogy.TOP,
-			useNumbers: topCard.useNumbers,
-		};
+	const numbers = cards.sort((a, b) => a.number - b.number).map(({ number }) => number);
+
+	return {
+		genealogy: Genealogy.TOP,
+		useNumbers: numbers,
+	};
 };
