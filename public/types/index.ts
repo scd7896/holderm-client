@@ -11,7 +11,7 @@ export class Card {
 
 export class Result {
 	success: boolean;
-	useNumbers: number[];
+	useCards: Card[];
 }
 
 export enum Genealogy {
@@ -28,5 +28,5 @@ export enum Genealogy {
 
 export class GenealogyResult {
 	genealogy: Genealogy;
-	useNumbers: number[];
+	useCards: Card[];
 }

@@ -7,7 +7,7 @@ export const isFlush = (cards: Card[]): Result => {
 		if (a.suit === b.suit) return 0;
 		return 1;
 	});
-	let numbers = [];
+	let useCards: Card[] = [];
 	let lastSuit = "";
 	let count = 1;
 
@@ -15,12 +15,12 @@ export const isFlush = (cards: Card[]): Result => {
 		const card = copyCards[i];
 		if (card.suit === lastSuit) {
 			count += 1;
-			numbers.push(card.number);
+			useCards.push(card);
 		} else {
 			if (count >= 5) break;
 
 			count = 1;
-			numbers = [card.number];
+			useCards = [card];
 		}
 		lastSuit = card.suit;
 	}
@@ -28,12 +28,12 @@ export const isFlush = (cards: Card[]): Result => {
 	if (count >= 5)
 		return {
 			success: true,
-			useNumbers: numbers,
+			useCards,
 		};
 
 	return {
 		success: false,
-		useNumbers: [],
+		useCards: [],
 	};
 };
 
@@ -42,7 +42,7 @@ export const isStraight = (cards: Card[]): Result => {
 	copyCards.sort((a, b) => a.number - b.number);
 	let count = 1;
 	let lastNumber = 0;
-	let numbers: number[] = [];
+	let useCards: Card[] = [];
 
 	for (let i = 0; i < copyCards.length; i++) {
 		const card = copyCards[i];
@@ -50,47 +50,40 @@ export const isStraight = (cards: Card[]): Result => {
 			if (count >= 5) break;
 			count = 1;
 			lastNumber = card.number;
-			numbers = [card.number];
+			useCards = [card];
 		}
 
 		if (card.number - lastNumber === 1) {
 			count += 1;
 			lastNumber = card.number;
-			numbers.push(card.number);
+			useCards.push(card);
 		}
 	}
 	if (count >= 5)
 		return {
 			success: true,
-			useNumbers: numbers,
+			useCards,
 		};
 	return {
 		success: false,
-		useNumbers: [],
-	};
-};
-
-export const isTopCard = (card: Card[]): Result => {
-	return {
-		success: true,
-		useNumbers: [],
+		useCards: [],
 	};
 };
 
 export const handCheck = (cards: Card[]): GenealogyResult => {
-	const sameCards = new Array(15).fill(0);
+	const sameCards: Card[][] = new Array(15);
 
 	const flushCheck = isFlush(cards);
 	if (flushCheck.success) {
-		const straightCheck = isStraight(flushCheck.useNumbers.map((number) => new Card("spades", number)));
+		const straightCheck = isStraight(flushCheck.useCards);
 		if (straightCheck.success)
 			return {
 				genealogy: Genealogy.STRAIGHTFLUSH,
-				useNumbers: straightCheck.useNumbers,
+				useCards: straightCheck.useCards,
 			};
 		return {
 			genealogy: Genealogy.FLUSH,
-			useNumbers: flushCheck.useNumbers,
+			useCards: flushCheck.useCards,
 		};
 	}
 
@@ -98,11 +91,15 @@ export const handCheck = (cards: Card[]): GenealogyResult => {
 	if (straightCheck.success)
 		return {
 			genealogy: Genealogy.STRAIGHT,
-			useNumbers: straightCheck.useNumbers,
+			useCards: straightCheck.useCards,
 		};
 
+	for (let i = 0; i < sameCards.length; i++) {
+		sameCards[i] = [];
+	}
+
 	cards.map((card) => {
-		sameCards[card.number] += 1;
+		sameCards[card.number].push(card);
 	});
 
 	const tripleCheck = {
@@ -110,14 +107,14 @@ export const handCheck = (cards: Card[]): GenealogyResult => {
 		number: 0,
 	};
 
-	let pairs = [];
+	let pairs: number[] = [];
 
 	for (let i = 0; i < sameCards.length; i++) {
-		const count = sameCards[i];
+		const count = sameCards[i].length;
 		if (count === 4)
 			return {
 				genealogy: Genealogy.FOURCARD,
-				useNumbers: [i],
+				useCards: sameCards[i],
 			};
 
 		if (count === 3) {
@@ -133,14 +130,18 @@ export const handCheck = (cards: Card[]): GenealogyResult => {
 	if (tripleCheck.success) {
 		pairs = pairs.filter((number) => number !== tripleCheck.number);
 		const subPair = pairs.pop();
+
 		if (subPair)
 			return {
 				genealogy: Genealogy.FULLHOUSE,
-				useNumbers: [subPair, tripleCheck.number],
+				useCards: [
+					{ number: subPair, suit: "spades" },
+					{ number: tripleCheck.number, suit: "spades" },
+				],
 			};
 		return {
 			genealogy: Genealogy.TRIPLE,
-			useNumbers: [tripleCheck.number],
+			useCards: [{ number: tripleCheck.number, suit: "clubs" }],
 		};
 	}
 
@@ -149,21 +150,25 @@ export const handCheck = (cards: Card[]): GenealogyResult => {
 		const secondPair = pairs.pop();
 		return {
 			genealogy: Genealogy.TWOPAIR,
-			useNumbers: [secondPair, firstPair],
+			useCards: [
+				{ number: secondPair, suit: "spades" },
+				{ number: firstPair, suit: "clubs" },
+			],
 		};
 	}
 
 	if (pairs.length >= 1) {
 		return {
 			genealogy: Genealogy.ONEPAIR,
-			useNumbers: pairs,
+			useCards: [{ number: pairs[0], suit: "clubs" }],
 		};
 	}
 
 	const numbers = cards.sort((a, b) => a.number - b.number).map(({ number }) => number);
+	const topCard = numbers.pop();
 
 	return {
 		genealogy: Genealogy.TOP,
-		useNumbers: numbers,
+		useCards: [{ number: topCard, suit: "clubs" }],
 	};
 };

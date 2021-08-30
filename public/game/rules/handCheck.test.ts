@@ -14,7 +14,7 @@ describe("handCheck Test", () => {
 	it("handChecks", () => {
 		expect(handCheck(mock1Hand)).toEqual({
 			genealogy: Genealogy.STRAIGHTFLUSH,
-			useNumbers: [10, 11, 12, 13, 14],
+			useCards: [mock1Hand[4], mock1Hand[3], mock1Hand[2], mock1Hand[1], mock1Hand[6]],
 		});
 	});
 });
