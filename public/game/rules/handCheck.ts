@@ -25,11 +25,16 @@ export const isFlush = (cards: Card[]): Result => {
 		lastSuit = card.suit;
 	}
 
-	if (count >= 5)
+	useCards.sort((a, b) => {
+		return a.number - b.number;
+	});
+
+	if (useCards.length >= 5) {
 		return {
 			success: true,
-			useCards,
+			useCards: useCards.sort((a, b) => a.number - b.number),
 		};
+	}
 
 	return {
 		success: false,
@@ -40,30 +45,38 @@ export const isFlush = (cards: Card[]): Result => {
 export const isStraight = (cards: Card[]): Result => {
 	const copyCards: Card[] = JSON.parse(JSON.stringify(cards));
 	copyCards.sort((a, b) => a.number - b.number);
-	let count = 1;
+
 	let lastNumber = 0;
 	let useCards: Card[] = [];
+	if (copyCards[copyCards.length - 1].number === 14) {
+		useCards.push(copyCards[copyCards.length - 1]);
+		lastNumber = 1;
+	}
 
 	for (let i = 0; i < copyCards.length; i++) {
 		const card = copyCards[i];
 		if (card.number - lastNumber > 1) {
-			if (count >= 5) break;
-			count = 1;
+			if (useCards.length >= 5) break;
+
 			lastNumber = card.number;
 			useCards = [card];
 		}
 
 		if (card.number - lastNumber === 1) {
-			count += 1;
 			lastNumber = card.number;
 			useCards.push(card);
 		}
 	}
-	if (count >= 5)
+
+	if (useCards.length >= 5) {
+		useCards.sort((a, b) => {
+			return a.number - b.number;
+		});
 		return {
 			success: true,
 			useCards,
 		};
+	}
 	return {
 		success: false,
 		useCards: [],
