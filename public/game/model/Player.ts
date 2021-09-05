@@ -11,21 +11,16 @@ interface RaiseOption {
 	size: number;
 	isDevide?: boolean;
 }
-
 class Player {
-	private state: PlayerState;
-	private betMoney: number;
-	private stackMoney: number;
-	private cards: [Card, Card];
+	public state: PlayerState;
+	public betMoney: number;
+	public stackMoney: number;
+	public cards: [Card, Card];
 
-	constructor(param: Player) {
+	constructor(stackMoney: number) {
 		this.state = PlayerState.LIVE;
-		this.stackMoney = param.stackMoney;
+		this.stackMoney = stackMoney;
 		this.betMoney = 0;
-	}
-
-	setCards(cards: [Card, Card]) {
-		this.cards = cards;
 	}
 
 	getCards() {
@@ -40,9 +35,7 @@ class Player {
 	}
 
 	allIn() {
-		this.betMoney += this.stackMoney;
-		this.stackMoney = 0;
-		this.state = PlayerState.ALL_IN;
+		(this.betMoney += this.stackMoney), (this.stackMoney = 0), (this.state = PlayerState.ALL_IN);
 	}
 
 	call(betMoney: number) {
