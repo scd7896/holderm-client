@@ -4,8 +4,8 @@ import Game from "./scenes/Game";
 
 var config: Phaser.Types.Core.GameConfig = {
 	type: Phaser.AUTO,
-	width: 800,
-	height: 600,
+	width: window.innerWidth,
+	height: window.innerHeight,
 	physics: {
 		default: "arcade",
 		arcade: {
@@ -17,6 +17,9 @@ var config: Phaser.Types.Core.GameConfig = {
 
 const game = new Phaser.Game(config);
 
+window.addEventListener("resize", () => {
+	game.scale.resize(window.innerWidth, window.innerHeight)
+});
 game.scene.add("titleScene", TitleScene);
 game.scene.add("game", Game);
 

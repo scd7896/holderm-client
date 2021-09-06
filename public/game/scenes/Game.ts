@@ -4,7 +4,17 @@ import Deck from "../model/Deck";
 import Player from "../model/Player";
 import PlayerViewModel from "../viewModel/Player.vm";
 import { IViewModelListener } from "../viewModel/index";
+import User from "../components/User";
+import { getPercentPixel } from "../../utils/getPercentPixel";
 
+const positions = [
+	[21, 6],
+	[65, 6],
+	[82, 17],
+	[5, 17],
+	[22, 29],
+	[67, 29],
+];
 class Game extends Phaser.Scene implements IViewModelListener {
 	private playersViewModel: PlayerViewModel;
 	private cards: Card[];
@@ -21,7 +31,16 @@ class Game extends Phaser.Scene implements IViewModelListener {
 
 	render() {
 		this.childs.map((child) => child.destroy());
-		const button = this.add.rectangle(500, 500, 200, 100, 0xff0000, 1);
+		const button = this.add.rectangle(
+			getPercentPixel(80),
+			getPercentPixel(42),
+			getPercentPixel(9),
+			getPercentPixel(6),
+			0xff0000,
+			1
+		);
+		this.add.text(getPercentPixel(76.4), getPercentPixel(41), "button", { fontSize: "20px" });
+		console.log(button.getCenter());
 
 		this.childs.push(button);
 		button.setInteractive();
@@ -33,8 +52,10 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		});
 
 		this.playersViewModel.state.players.map(({ stackMoney }, index) => {
-			const text = this.add.text(index * 50, 0, stackMoney.toString());
-			this.childs.push(text);
+			const user = new User(this, { x: positions[index][0], y: positions[index][1], stackMoney: stackMoney });
+			user.setCards([]);
+			user.setImage();
+			user.setStackMoney(stackMoney);
 		});
 	}
 
