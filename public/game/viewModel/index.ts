@@ -3,6 +3,8 @@ export interface IViewModelListener {
 	didUpdate(nextState: any, state: any): void;
 }
 
+let timer: NodeJS.Timeout;
+
 export abstract class ACViewModel<T> {
 	state: T;
 	listeners: IViewModelListener[];
@@ -26,9 +28,14 @@ export abstract class ACViewModel<T> {
 			...this.state,
 			...nextState,
 		};
-		this.listeners.map((listener) => {
-			listener.render();
-			listener.didUpdate(prevState, this.state);
-		});
+		if (timer) {
+			clearTimeout(timer);
+		}
+		timer = setTimeout(() => {
+			this.listeners.map((listener) => {
+				listener.render();
+				listener.didUpdate(prevState, this.state);
+			});
+		}, 0);
 	}
 }

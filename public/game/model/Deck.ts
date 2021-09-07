@@ -2,8 +2,11 @@ import { Card } from "../../types";
 
 class Deck {
 	private cards: Card[];
-	constructor(cards: Card[]) {
+	private scene: Phaser.Scene;
+
+	constructor(cards: Card[], scene: Phaser.Scene) {
 		this.cards = cards;
+		this.scene = scene;
 	}
 
 	shuffle() {

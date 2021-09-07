@@ -26,7 +26,7 @@ class User {
 		this.target.add.text(this.x, this.y + getPercentPixel(4.5), money.toString(), { fontSize: "14px" });
 	}
 
-	setCards(cards: Card[]) {
+	setCards() {
 		this.target.add.rectangle(
 			this.x + getPercentPixel(6),
 			this.y + getPercentPixel(2),
@@ -41,6 +41,13 @@ class User {
 			getPercentPixel(6),
 			0xe8e8e8
 		);
+	}
+
+	setMyCards(cards: Card[]) {
+		cards.map(({ number, suit }, index) => {
+			const card = `${suit}_${number}`;
+			this.target.add.image(this.x + getPercentPixel(6 + index * 10), this.y + getPercentPixel(2), "cards", card);
+		});
 	}
 }
 

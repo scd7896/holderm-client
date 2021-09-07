@@ -6,7 +6,7 @@ export enum PlayerState {
 	ALL_IN,
 }
 
-interface RaiseOption {
+export interface RaiseOption {
 	target: "bet" | "pot";
 	size: number;
 	isDevide?: boolean;
