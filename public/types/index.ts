@@ -30,3 +30,7 @@ export class GenealogyResult {
 	genealogy: Genealogy;
 	useCards: Card[];
 }
+
+export interface IJoinEventProp {
+	stackMoney: number;
+}

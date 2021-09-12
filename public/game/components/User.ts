@@ -46,7 +46,14 @@ class User {
 	setMyCards(cards: Card[]) {
 		cards.map(({ number, suit }, index) => {
 			const card = `${suit}_${number}`;
-			this.target.add.image(this.x + getPercentPixel(6 + index * 10), this.y + getPercentPixel(2), "cards", card);
+			const image = this.target.add.image(
+				this.x + getPercentPixel(6 + index * 10),
+				this.y + getPercentPixel(2),
+				"cards",
+				card
+			);
+			image.scaleX = window.innerWidth / 1920;
+			image.scaleY = window.innerWidth / 1920;
 		});
 	}
 }
