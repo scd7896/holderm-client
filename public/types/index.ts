@@ -33,4 +33,26 @@ export class GenealogyResult {
 
 export interface IJoinEventProp {
 	stackMoney: number;
+	isMy?: boolean;
+}
+
+export enum TURN_TYPE {
+	START,
+	PRE_PLOP,
+	PLOP,
+	TURN,
+	RIVER,
+	END,
+}
+
+export interface UserInfo {
+	id: string;
+	money: number;
+	nickname: string;
+	number: number;
+}
+
+export interface IJoinInfo {
+	users: UserInfo[];
+	you: UserInfo;
 }

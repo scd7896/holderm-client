@@ -5,21 +5,27 @@ interface IProp {
 	x: number;
 	y: number;
 	stackMoney: number;
+	isConnection: boolean;
 }
 
 class User {
 	private x: number;
 	private y: number;
 	private target: Phaser.Scene;
+	private isConnection: boolean;
 
 	constructor(target: Phaser.Scene, prop: IProp) {
 		this.target = target;
 		this.x = getPercentPixel(prop.x);
 		this.y = getPercentPixel(prop.y);
+		this.isConnection = prop.isConnection;
 	}
 
 	setImage() {
 		this.target.add.circle(this.x, this.y, getPercentPixel(3), 0xff0000);
+		if (!this.isConnection) {
+			this.target.add.text(this.x - getPercentPixel(1), this.y + getPercentPixel(1), "연결중", { fontSize: "14px" });
+		}
 	}
 
 	setStackMoney(money: number) {

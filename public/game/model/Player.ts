@@ -4,6 +4,7 @@ export enum PlayerState {
 	FOLD,
 	LIVE,
 	ALL_IN,
+	ACTION,
 }
 
 export interface RaiseOption {
@@ -16,11 +17,15 @@ class Player {
 	public betMoney: number;
 	public stackMoney: number;
 	public cards: [Card, Card];
+	public isMy: boolean;
+	public isConnection: boolean;
 
-	constructor(stackMoney: number) {
+	constructor(stackMoney: number, isMy: boolean = false) {
 		this.state = PlayerState.LIVE;
 		this.stackMoney = stackMoney;
 		this.betMoney = 0;
+		this.isMy = isMy;
+		this.isConnection = isMy;
 	}
 
 	getCards() {
@@ -35,7 +40,9 @@ class Player {
 	}
 
 	allIn() {
-		(this.betMoney += this.stackMoney), (this.stackMoney = 0), (this.state = PlayerState.ALL_IN);
+		this.betMoney += this.stackMoney;
+		this.stackMoney = 0;
+		this.state = PlayerState.ALL_IN;
 	}
 
 	call(betMoney: number) {
@@ -44,6 +51,7 @@ class Player {
 		} else {
 			this.betMoney += betMoney;
 			this.stackMoney -= betMoney;
+			this.state = PlayerState.ACTION;
 		}
 	}
 
