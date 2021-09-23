@@ -18,10 +18,17 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 		});
 	}
 
-	joinPlayer(player: Player) {
-		this.setState({
-			players: [...this.state.players, player],
-		});
+	joinPlayer(player: Player, number?: number) {
+		if (number !== undefined) {
+			this.state.players[number] = player;
+			this.setState({
+				player: this.state.players,
+			});
+		} else {
+			this.setState({
+				players: [...this.state.players, player],
+			});
+		}
 	}
 
 	quitPlayer(index: number) {

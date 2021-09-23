@@ -11,15 +11,14 @@ import Button from "../components/Button";
 import Text from "../components/Text";
 import TurnViewModel from "../viewModel/Turn.vm";
 import socket from "../../rtcConnection/socket";
-import { getConnection } from "../../rtcConnection/connector";
 import ConnectionViewModel from "../viewModel/Connection.vm";
 
 const positions = [
+	[22, 29],
+	[5, 17],
 	[21, 6],
 	[65, 6],
 	[82, 17],
-	[5, 17],
-	[22, 29],
 	[67, 29],
 ];
 
@@ -46,7 +45,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 
 	render() {
 		this.children.removeAll();
-		const button = this.buttonComponent.claaButton();
 		const cardButton = this.buttonComponent.cardButton();
 		const callButton = this.buttonComponent.callButton();
 
@@ -59,29 +57,20 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.myViewModel.state.user.cards && user.setMyCards(this.myViewModel.state.user.cards);
 		user.setImage();
 		user.setStackMoney(this.myViewModel.state.user.stackMoney);
-		console.log(this);
+
 		callButton.setInteractive();
 		cardButton.setInteractive();
-		button.setInteractive();
 
 		callButton.on("pointerdown", () => {
 			this.myViewModel.call(this.lastBetMoney);
 			this.potViewModel.bet(this.lastBetMoney);
 			this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
 			this.lastBetMoney += 100;
+			this.connectionViewModel.broadCast(JSON.stringify({ status: "success", messgae: "mmmmmm" }));
 		});
 
 		cardButton.on("pointerdown", () => {
 			this.myViewModel.myCardSet([this.deck.pickCard(), this.deck.pickCard()]);
-		});
-
-		button.on("pointerdown", () => {
-			const event = new CustomEvent<IJoinEventProp>("join", {
-				detail: {
-					stackMoney: 8000,
-				},
-			});
-			document.dispatchEvent(event);
 		});
 
 		this.textComponent.totalPotSize(this.potViewModel.state.pot);
@@ -129,15 +118,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		});
 
 		document.addEventListener("bet", (e: any) => {});
-
-		const userJoinEvent = new CustomEvent<IJoinEventProp>("join", {
-			detail: {
-				stackMoney: player.stackMoney,
-				isMy: true,
-			},
-		});
-
-		document.dispatchEvent(userJoinEvent);
 
 		this.playersViewModel.subscribe(this);
 		this.myViewModel.subscribe(this);
