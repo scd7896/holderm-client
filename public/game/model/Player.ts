@@ -12,6 +12,12 @@ export interface RaiseOption {
 	size: number;
 	isDevide?: boolean;
 }
+
+export interface IPlayerProp {
+	stackMoney: number;
+	isMy: boolean;
+	id: string;
+}
 class Player {
 	public state: PlayerState;
 	public betMoney: number;
@@ -19,13 +25,15 @@ class Player {
 	public cards: [Card, Card];
 	public isMy: boolean;
 	public isConnection: boolean;
+	public id: string;
 
-	constructor(stackMoney: number, isMy: boolean = false) {
+	constructor({ isMy, id, stackMoney }: IPlayerProp) {
 		this.state = PlayerState.LIVE;
 		this.stackMoney = stackMoney;
 		this.betMoney = 0;
 		this.isMy = isMy;
 		this.isConnection = isMy;
+		this.id = id;
 	}
 
 	getCards() {

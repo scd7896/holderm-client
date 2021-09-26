@@ -52,20 +52,22 @@ class ConnectionViewModel {
 	}
 
 	createDataChannel(pc: RTCPeerConnection, key: string) {
+		pc.ondatachannel = (e) => {
+			const dataChannel = e.channel;
+
+			dataChannel.onclose = () => {};
+
+			dataChannel.onmessage = (ev) => {
+				const obj = JSON.parse(ev.data);
+				console.log("message", obj);
+			};
+
+			dataChannel.onopen = () => {
+				this.playerViewModel.playerConnection(key);
+			};
+		};
+
 		const dataChannel = pc.createDataChannel(key);
-
-		dataChannel.onmessage = (e) => {
-			console.log("messages", e.data);
-		};
-
-		dataChannel.onopen = (event) => {
-			console.log("open", key);
-		};
-
-		// Disable input when closed
-		dataChannel.addEventListener("close", (event) => {
-			console.log("close");
-		});
 
 		this.dataChannels[key] = dataChannel;
 	}
@@ -89,7 +91,7 @@ class ConnectionViewModel {
 			const pc = getConnection(number, id);
 			this.createDataChannel(pc, id);
 			this.rtcConnections[id] = pc;
-			this.playerViewModel.joinPlayer(new Player(money), number);
+			this.playerViewModel.joinPlayer(new Player({ stackMoney: money, id, isMy: false }), number);
 		});
 	}
 
@@ -142,7 +144,7 @@ class ConnectionViewModel {
 			const otherPlayers: Player[] = [];
 			for (let i = (data.you.number + 1) % totalLength; i !== data.you.number; ) {
 				if (i !== data.you.number) {
-					const player = new Player(ohterUsers[i].money);
+					const player = new Player({ stackMoney: ohterUsers[i].money, isMy: false, id: ohterUsers[i].id });
 					otherPlayers.push(player);
 				}
 				i = (i + 1) % totalLength;

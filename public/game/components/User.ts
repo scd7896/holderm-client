@@ -29,7 +29,9 @@ class User {
 	}
 
 	setStackMoney(money: number) {
-		this.target.add.text(this.x, this.y + getPercentPixel(4.5), money.toString(), { fontSize: "14px" });
+		this.target.add.text(this.x - getPercentPixel(1), this.y + getPercentPixel(4.5), money.toString(), {
+			fontSize: "14px",
+		});
 	}
 
 	setCards() {

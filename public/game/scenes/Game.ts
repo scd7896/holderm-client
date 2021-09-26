@@ -96,7 +96,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.potViewModel = new PotViewModel();
 		this.playersViewModel = new PlayerViewModel();
 		this.turnViewModel = new TurnViewModel();
-		const player = new Player(8000);
+		const player = new Player({ stackMoney: 8000, id: "", isMy: true });
 		this.myViewModel = new MyViewModel(player, 0);
 		this.connectionViewModel = new ConnectionViewModel({
 			myViewModel: this.myViewModel,
@@ -105,19 +105,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.lastBetMoney = 0;
 		this.textComponent = new Text(this);
 		this.buttonComponent = new Button(this);
-		/**
-		 * 접속을 했을 때의 이벤트 리스너로 가정
-		 */
-		document.addEventListener("join", (e: any) => {
-			const player = new Player(e.detail.stackMoney, e.detail.isMy);
-			this.playersViewModel.joinPlayer(player);
-		});
-
-		document.addEventListener("quit", (e: any) => {
-			this.playersViewModel.quitPlayer(e.detail.index);
-		});
-
-		document.addEventListener("bet", (e: any) => {});
 
 		this.playersViewModel.subscribe(this);
 		this.myViewModel.subscribe(this);

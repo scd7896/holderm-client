@@ -49,6 +49,16 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 			players: this.state.players,
 		});
 	}
+
+	playerConnection(id: string) {
+		const index = this.state.players.findIndex((player) => id === player?.id);
+		if (index !== -1) {
+			this.state.players[index].isConnection = true;
+			this.setState({
+				players: this.state.players,
+			});
+		}
+	}
 }
 
 export default PlayerViewModel;
