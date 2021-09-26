@@ -22,7 +22,7 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 		if (number !== undefined) {
 			this.state.players[number] = player;
 			this.setState({
-				player: this.state.players,
+				players: this.state.players,
 			});
 		} else {
 			this.setState({
@@ -54,6 +54,17 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 		const index = this.state.players.findIndex((player) => id === player?.id);
 		if (index !== -1) {
 			this.state.players[index].isConnection = true;
+			this.setState({
+				players: this.state.players,
+			});
+		}
+	}
+
+	callBet(id: string, money: number) {
+		const index = this.state.players.findIndex((player) => id === player?.id);
+		if (index !== -1) {
+			this.state.players[index].state = PlayerState.CALL;
+			this.state.players[index].call(money);
 			this.setState({
 				players: this.state.players,
 			});

@@ -56,3 +56,9 @@ export interface IJoinInfo {
 	users: UserInfo[];
 	you: UserInfo;
 }
+
+export interface IMessage<T> {
+	type: string;
+	from: string;
+	data: T;
+}

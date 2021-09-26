@@ -1,5 +1,5 @@
 import * as Phaser from "phaser";
-import { Card, IJoinEventProp, IJoinInfo, SUIT } from "../../types";
+import { Card, IJoinEventProp, IJoinInfo, IMessage, SUIT } from "../../types";
 import Deck from "../model/Deck";
 import Player from "../model/Player";
 import PlayerViewModel from "../viewModel/Player.vm";
@@ -12,6 +12,7 @@ import Text from "../components/Text";
 import TurnViewModel from "../viewModel/Turn.vm";
 import socket from "../../rtcConnection/socket";
 import ConnectionViewModel from "../viewModel/Connection.vm";
+import MessageHandler from "../viewModel/MessageHandler.vm";
 
 const positions = [
 	[22, 29],
@@ -28,6 +29,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	private potViewModel: PotViewModel;
 	private turnViewModel: TurnViewModel;
 	private connectionViewModel: ConnectionViewModel;
+	private messageHandler: MessageHandler;
 	private cards: Card[];
 	private deck: Deck;
 	private buttonComponent: Button;
@@ -62,11 +64,17 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		cardButton.setInteractive();
 
 		callButton.on("pointerdown", () => {
+			this.lastBetMoney = 100;
 			this.myViewModel.call(this.lastBetMoney);
 			this.potViewModel.bet(this.lastBetMoney);
-			this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
-			this.lastBetMoney += 100;
-			this.connectionViewModel.broadCast(JSON.stringify({ status: "success", messgae: "mmmmmm" }));
+			// this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
+			const message: IMessage<number> = {
+				type: "bet",
+				from: this.myViewModel.state.user.id,
+				data: this.lastBetMoney,
+			};
+
+			this.connectionViewModel.broadCast(JSON.stringify(message));
 		});
 
 		cardButton.on("pointerdown", () => {
@@ -98,10 +106,18 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.turnViewModel = new TurnViewModel();
 		const player = new Player({ stackMoney: 8000, id: "", isMy: true });
 		this.myViewModel = new MyViewModel(player, 0);
+		this.messageHandler = new MessageHandler({
+			playersViewModel: this.playersViewModel,
+			turnViewModel: this.turnViewModel,
+			myViewModel: this.myViewModel,
+			potViewModel: this.potViewModel,
+		});
 		this.connectionViewModel = new ConnectionViewModel({
 			myViewModel: this.myViewModel,
 			playerViewModel: this.playersViewModel,
+			messageHandler: this.messageHandler,
 		});
+
 		this.lastBetMoney = 0;
 		this.textComponent = new Text(this);
 		this.buttonComponent = new Button(this);

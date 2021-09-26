@@ -11,29 +11,46 @@ class MyViewModel extends ACViewModel<State> {
 		super({ user: user, number });
 	}
 
+	playerSet(user: Player, number: number) {
+		this.setState({
+			user,
+			number,
+		});
+	}
+
 	myCardSet(cards) {
 		this.state.user.cards = cards;
-		this.setState({});
+		this.setState({
+			user: this.state.user,
+		});
 	}
 
 	call(stackMoney: number) {
 		this.state.user.call(stackMoney);
-		this.setState({});
+		this.setState({
+			user: this.state.user,
+		});
 	}
 
 	raise(berMoney: number, potMoney: number, option: RaiseOption) {
 		this.state.user.raise(berMoney, potMoney, option);
-		this.setState({});
+		this.setState({
+			user: this.state.user,
+		});
 	}
 
 	allIn() {
 		this.state.user.allIn();
-		this.setState({});
+		this.setState({
+			user: this.state.user,
+		});
 	}
 
 	fold() {
 		this.state.user.fold();
-		this.setState({});
+		this.setState({
+			user: this.state.user,
+		});
 	}
 }
 

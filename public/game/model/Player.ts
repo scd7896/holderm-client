@@ -5,6 +5,8 @@ export enum PlayerState {
 	LIVE,
 	ALL_IN,
 	ACTION,
+	CALL,
+	RAISE,
 }
 
 export interface RaiseOption {

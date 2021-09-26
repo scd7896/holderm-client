@@ -2,23 +2,27 @@ import { getConnection } from "../../rtcConnection/connector";
 import socket from "../../rtcConnection/socket";
 import { IJoinInfo } from "../../types";
 import Player from "../model/Player";
+import MessageHandler from "./MessageHandler.vm";
 import MyViewModel from "./My.vm";
 import PlayerViewModel from "./Player.vm";
 
 interface IProp {
 	playerViewModel: PlayerViewModel;
 	myViewModel: MyViewModel;
+	messageHandler: MessageHandler;
 }
 const sendQueue: string[] = [];
 class ConnectionViewModel {
 	private playerViewModel: PlayerViewModel;
 	private myViewModel: MyViewModel;
+	private messageHandler: MessageHandler;
 	private rtcConnections: Record<string, RTCPeerConnection>;
 	private dataChannels: Record<string, RTCDataChannel>;
 
 	constructor(prop: IProp) {
 		this.playerViewModel = prop.playerViewModel;
 		this.myViewModel = prop.myViewModel;
+		this.messageHandler = prop.messageHandler;
 		this.rtcConnections = {};
 		this.dataChannels = {};
 
@@ -39,7 +43,6 @@ class ConnectionViewModel {
 					sendQueue.push(message);
 					break;
 				case "open":
-					console.log("opennn", message);
 					sendQueue.forEach((message) => dataChannel.send(message));
 					dataChannel.send(message);
 					break;
@@ -59,7 +62,7 @@ class ConnectionViewModel {
 
 			dataChannel.onmessage = (ev) => {
 				const obj = JSON.parse(ev.data);
-				console.log("message", obj);
+				this.messageHandler.messageHandle(obj);
 			};
 
 			dataChannel.onopen = () => {
@@ -74,11 +77,8 @@ class ConnectionViewModel {
 
 	getCandidateListen() {
 		socket.on("getCandidate", ({ candidate, fromSocketId, toSocketId }) => {
-			console.log(fromSocketId, toSocketId);
 			const pc = this.rtcConnections[fromSocketId];
-			console.log("candidate", pc);
 			if (pc) {
-				console.log("candidate 시도하기", pc);
 				pc.addIceCandidate(new RTCIceCandidate(candidate)).then((e) => {
 					console.log("candidateAddSuccess");
 				});
@@ -149,9 +149,9 @@ class ConnectionViewModel {
 				}
 				i = (i + 1) % totalLength;
 			}
-
+			const my = new Player({ isMy: true, id: data.you.id, stackMoney: data.you.money });
 			this.playerViewModel.userSets(otherPlayers);
-			this.myViewModel.setState({ number: data.you.number });
+			this.myViewModel.playerSet(my, data.you.number);
 		});
 	}
 }
