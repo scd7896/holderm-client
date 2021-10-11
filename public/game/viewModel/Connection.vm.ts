@@ -96,9 +96,11 @@ class ConnectionViewModel {
 	}
 
 	getAnswerListen() {
-		socket.on("getAnswer", async ({ sdp, fromSocketId, number }) => {
+		socket.on("getAnswer", async ({ sdp, fromSocketId, number, user }) => {
 			const pc = this.rtcConnections[fromSocketId];
 			await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+			console.log(user);
+			this.playerViewModel.findIdPlayerSet(user.id, new Player(user));
 		});
 	}
 
@@ -109,7 +111,12 @@ class ConnectionViewModel {
 			pc.createAnswer().then(async (sdp) => {
 				await pc.setLocalDescription(new RTCSessionDescription(sdp));
 				this.createDataChannel(pc, fromSocketId);
-				socket.emit("answer", { sdp, toSocketId: fromSocketId, number: this.myViewModel.state.number });
+				socket.emit("answer", {
+					sdp,
+					toSocketId: fromSocketId,
+					number: this.myViewModel.state.number,
+					user: this.myViewModel.state.user,
+				});
 			});
 		});
 	}

@@ -31,7 +31,7 @@ class Player {
 
 	constructor({ isMy, id, stackMoney }: IPlayerProp) {
 		this.state = PlayerState.LIVE;
-		this.stackMoney = stackMoney;
+		this.stackMoney = stackMoney || 0;
 		this.betMoney = 0;
 		this.isMy = isMy;
 		this.isConnection = isMy;

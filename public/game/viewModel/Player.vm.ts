@@ -70,6 +70,14 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 			});
 		}
 	}
+
+	findIdPlayerSet(id: string, user: Player) {
+		const index = this.state.players.findIndex((player) => id === player?.id);
+
+		if (index !== -1) {
+			this.state.players[index] = user;
+		}
+	}
 }
 
 export default PlayerViewModel;

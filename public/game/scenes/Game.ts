@@ -13,6 +13,7 @@ import TurnViewModel from "../viewModel/Turn.vm";
 import socket from "../../rtcConnection/socket";
 import ConnectionViewModel from "../viewModel/Connection.vm";
 import MessageHandler from "../viewModel/MessageHandler.vm";
+import UserTable from "../components/User/UserTable";
 
 const positions = [
 	[22, 29],
@@ -36,17 +37,17 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	private textComponent: Text;
 	private lastBetMoney: number;
 
+	private userTableComponent: UserTable;
+
 	preload() {
 		this.load.atlas("cards", "/assets/cards.png", "/assets/cards.json");
 	}
 
-	didUpdate(nextState) {
-		if (nextState.turn !== undefined) {
-		}
+	update() {
+		this.userTableComponent.update(this.playersViewModel.state.players);
 	}
 
 	render() {
-		this.children.removeAll();
 		const cardButton = this.buttonComponent.cardButton();
 		const callButton = this.buttonComponent.callButton();
 
@@ -82,20 +83,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		});
 
 		this.textComponent.totalPotSize(this.potViewModel.state.pot);
-
-		this.playersViewModel.state.players
-			.filter(({ isMy }) => !isMy)
-			.map(({ stackMoney, isConnection }, index) => {
-				const user = new User(this, {
-					x: positions[index][0],
-					y: positions[index][1],
-					stackMoney: stackMoney,
-					isConnection,
-				});
-				user.setCards();
-				user.setImage();
-				user.setStackMoney(stackMoney);
-			});
+		this.userTableComponent = new UserTable(this, this.playersViewModel.state.players);
 	}
 
 	create() {
