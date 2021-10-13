@@ -1,11 +1,11 @@
 import * as Phaser from "phaser";
-import { Card, IJoinEventProp, IJoinInfo, IMessage, SUIT } from "../../types";
+import { Card, IMessage, SUIT } from "../../types";
 import Deck from "../model/Deck";
 import Player from "../model/Player";
 import PlayerViewModel from "../viewModel/Player.vm";
 import MyViewModel from "../viewModel/My.vm";
 import { IViewModelListener } from "../viewModel/index";
-import User from "../components/User";
+import User from "../components/User/User";
 import PotViewModel from "../viewModel/Pot.vm";
 import Button from "../components/Button";
 import Text from "../components/Text";
@@ -43,7 +43,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.load.atlas("cards", "/assets/cards.png", "/assets/cards.json");
 	}
 
-	update() {
+	stateUpdate() {
 		this.userTableComponent.update(this.playersViewModel.state.players);
 	}
 
@@ -57,9 +57,8 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			stackMoney: this.myViewModel.state.user.stackMoney,
 			isConnection: true,
 		});
+
 		this.myViewModel.state.user.cards && user.setMyCards(this.myViewModel.state.user.cards);
-		user.setImage();
-		user.setStackMoney(this.myViewModel.state.user.stackMoney);
 
 		callButton.setInteractive();
 		cardButton.setInteractive();

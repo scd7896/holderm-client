@@ -99,8 +99,7 @@ class ConnectionViewModel {
 		socket.on("getAnswer", async ({ sdp, fromSocketId, number, user }) => {
 			const pc = this.rtcConnections[fromSocketId];
 			await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-			console.log(user);
-			this.playerViewModel.findIdPlayerSet(user.id, new Player(user));
+			this.playerViewModel.findIdPlayerSet(user.id, new Player({ ...user, isMy: false }));
 		});
 	}
 
@@ -157,7 +156,7 @@ class ConnectionViewModel {
 				i = (i + 1) % totalLength;
 			}
 			const my = new Player({ isMy: true, id: data.you.id, stackMoney: data.you.money });
-			this.playerViewModel.userSets(otherPlayers);
+			this.playerViewModel.userSets([...otherPlayers, my]);
 			this.myViewModel.playerSet(my, data.you.number);
 		});
 	}

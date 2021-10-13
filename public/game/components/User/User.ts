@@ -30,11 +30,13 @@ class User extends Phaser.GameObjects.Group {
 	}
 
 	render() {
-		this.target.add.circle(this.x, this.y, getPercentPixel(3), 0xff0000);
-		if (this.isConnection) {
+		this.add(this.target.add.circle(this.x, this.y, getPercentPixel(3), 0xff0000));
+
+		if (!this.isConnection) {
 			this.connectionText = this.target.add.text(this.x - getPercentPixel(1), this.y + getPercentPixel(1), "연결중", {
 				fontSize: "14px",
 			});
+			this.add(this.connectionText);
 		}
 		this.moneyText = this.target.add.text(
 			this.x - getPercentPixel(1),
@@ -44,6 +46,7 @@ class User extends Phaser.GameObjects.Group {
 				fontSize: "14px",
 			}
 		);
+		this.add(this.moneyText);
 	}
 
 	update(prop: Omit<IProp, "x" | "y">) {

@@ -1,5 +1,5 @@
 export interface IViewModelListener {
-	update(): void;
+	stateUpdate(): void;
 }
 
 let timer: NodeJS.Timeout;
@@ -32,7 +32,7 @@ export abstract class ACViewModel<T> {
 		}
 		timer = setTimeout(() => {
 			this.listeners.map((listener) => {
-				listener.update();
+				listener.stateUpdate();
 			});
 		}, 0);
 	}
