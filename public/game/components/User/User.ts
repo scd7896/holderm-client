@@ -90,6 +90,15 @@ class User extends Phaser.GameObjects.Group {
 			image.scaleY = window.innerWidth / 1920;
 		});
 	}
+
+	send(message: string, money: number) {
+		const text = this.target.add.text(this.x + getPercentPixel(3), this.y, `${message}: ${money}`, {
+			fontSize: "12px",
+		});
+		setTimeout(() => {
+			text.destroy();
+		}, 500);
+	}
 }
 
 export default User;

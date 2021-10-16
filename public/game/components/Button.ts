@@ -15,6 +15,7 @@ class Button {
 			1
 		);
 		this.scene.add.text(getPercentPixel(76.4), getPercentPixel(43), "CALL", { fontSize: "20px" });
+		button.setInteractive();
 
 		return button;
 	}
@@ -28,6 +29,7 @@ class Button {
 			0xff0000,
 			1
 		);
+		button.setInteractive();
 		this.scene.add.text(getPercentPixel(76.4), getPercentPixel(5), "button", { fontSize: "20px" });
 
 		return button;
@@ -42,7 +44,10 @@ class Button {
 			0xff0000,
 			1
 		);
+
 		this.scene.add.text(getPercentPixel(86.4), getPercentPixel(5), "cardSet", { fontSize: "20px" });
+
+		button.setInteractive();
 
 		return button;
 	}

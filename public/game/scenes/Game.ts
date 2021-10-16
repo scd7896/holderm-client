@@ -38,6 +38,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	private lastBetMoney: number;
 
 	private userTableComponent: UserTable;
+	private myUserComponent: User;
 
 	preload() {
 		this.load.atlas("cards", "/assets/cards.png", "/assets/cards.json");
@@ -45,29 +46,31 @@ class Game extends Phaser.Scene implements IViewModelListener {
 
 	stateUpdate() {
 		this.userTableComponent.update(this.playersViewModel.state.players);
+		this.myUserComponent.update({
+			stackMoney: this.myViewModel.state.user.stackMoney,
+			isConnection: true,
+		});
 	}
 
 	render() {
-		const cardButton = this.buttonComponent.cardButton();
-		const callButton = this.buttonComponent.callButton();
-
-		const user = new User(this, {
+		this.myUserComponent = new User(this, {
 			x: 40,
 			y: 30,
 			stackMoney: this.myViewModel.state.user.stackMoney,
 			isConnection: true,
 		});
 
-		this.myViewModel.state.user.cards && user.setMyCards(this.myViewModel.state.user.cards);
+		const cardButton = this.buttonComponent.cardButton();
+		const callButton = this.buttonComponent.callButton();
 
-		callButton.setInteractive();
-		cardButton.setInteractive();
+		this.myViewModel.state.user.cards && this.myUserComponent.setMyCards(this.myViewModel.state.user.cards);
 
 		callButton.on("pointerdown", () => {
 			this.lastBetMoney = 100;
+
 			this.myViewModel.call(this.lastBetMoney);
 			this.potViewModel.bet(this.lastBetMoney);
-			// this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
+			this.myUserComponent.send("call", this.lastBetMoney);
 			const message: IMessage<number> = {
 				type: "bet",
 				from: this.myViewModel.state.user.id,
@@ -82,7 +85,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		});
 
 		this.textComponent.totalPotSize(this.potViewModel.state.pot);
-		this.userTableComponent = new UserTable(this, this.playersViewModel.state.players);
 	}
 
 	create() {
@@ -93,11 +95,14 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.turnViewModel = new TurnViewModel();
 		const player = new Player({ stackMoney: 8000, id: "", isMy: true });
 		this.myViewModel = new MyViewModel(player, 0);
+		this.userTableComponent = new UserTable(this, this.playersViewModel.state.players);
+
 		this.messageHandler = new MessageHandler({
 			playersViewModel: this.playersViewModel,
 			turnViewModel: this.turnViewModel,
 			myViewModel: this.myViewModel,
 			potViewModel: this.potViewModel,
+			userTable: this.userTableComponent,
 		});
 		this.connectionViewModel = new ConnectionViewModel({
 			myViewModel: this.myViewModel,

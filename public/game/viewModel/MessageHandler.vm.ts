@@ -1,4 +1,5 @@
 import { IMessage } from "../../types";
+import UserTable from "../components/User/UserTable";
 import MyViewModel from "./My.vm";
 import PlayerViewModel from "./Player.vm";
 import PotViewModel from "./Pot.vm";
@@ -10,11 +11,15 @@ class MessageHandler {
 	private potViewModel: PotViewModel;
 	private turnViewModel: TurnViewModel;
 
-	constructor({ playersViewModel, myViewModel, potViewModel, turnViewModel }) {
+	private userTableComponent: UserTable;
+
+	constructor({ playersViewModel, myViewModel, potViewModel, turnViewModel, userTable }) {
 		this.playersViewModel = playersViewModel;
 		this.myViewModel = myViewModel;
 		this.potViewModel = potViewModel;
 		this.turnViewModel = turnViewModel;
+
+		this.userTableComponent = userTable;
 	}
 
 	messageHandle<T>(message: IMessage<T>) {
@@ -29,6 +34,7 @@ class MessageHandler {
 
 	betting(message) {
 		this.playersViewModel.callBet(message.from, message.data);
+		this.userTableComponent.whoSend(message.from, "call", message.data);
 	}
 }
 

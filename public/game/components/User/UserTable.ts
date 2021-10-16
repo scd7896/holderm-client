@@ -32,6 +32,13 @@ class UserTable extends Phaser.GameObjects.Layer {
 			});
 	}
 
+	whoSend(key: string, message: string, money: number) {
+		const index = this.players.filter(({ isMy }) => !isMy).findIndex((player) => player.id === key);
+		if (index !== -1) {
+			this.userComponents[index].send(message, money);
+		}
+	}
+
 	update(players: Player[]) {
 		console.log("call", players);
 		this.userComponents.map((user) => user.destroy(true));
