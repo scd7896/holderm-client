@@ -11,18 +11,9 @@ import Button from "../components/Button";
 import Text from "../components/Text";
 import TurnViewModel from "../viewModel/Turn.vm";
 import socket from "../../rtcConnection/socket";
-import ConnectionViewModel from "../viewModel/Connection.vm";
-import MessageHandler from "../viewModel/MessageHandler.vm";
+import ConnectionViewModel from "../presenter/Connection";
+import MessageHandler from "../presenter/MessageHandler";
 import UserTable from "../components/User/UserTable";
-
-const positions = [
-	[22, 29],
-	[5, 17],
-	[21, 6],
-	[65, 6],
-	[82, 17],
-	[67, 29],
-];
 
 class Game extends Phaser.Scene implements IViewModelListener {
 	private playersViewModel: PlayerViewModel;

@@ -2,9 +2,9 @@ import { getConnection } from "../../rtcConnection/connector";
 import socket from "../../rtcConnection/socket";
 import { IJoinInfo } from "../../types";
 import Player from "../model/Player";
-import MessageHandler from "./MessageHandler.vm";
-import MyViewModel from "./My.vm";
-import PlayerViewModel from "./Player.vm";
+import MessageHandler from "./MessageHandler";
+import MyViewModel from "../viewModel/My.vm";
+import PlayerViewModel from "../viewModel/Player.vm";
 
 interface IProp {
 	playerViewModel: PlayerViewModel;

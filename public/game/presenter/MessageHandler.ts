@@ -1,9 +1,9 @@
 import { IMessage } from "../../types";
 import UserTable from "../components/User/UserTable";
-import MyViewModel from "./My.vm";
-import PlayerViewModel from "./Player.vm";
-import PotViewModel from "./Pot.vm";
-import TurnViewModel from "./Turn.vm";
+import MyViewModel from "../viewModel/My.vm";
+import PlayerViewModel from "../viewModel/Player.vm";
+import PotViewModel from "../viewModel/Pot.vm";
+import TurnViewModel from "../viewModel/Turn.vm";
 
 class MessageHandler {
 	private playersViewModel: PlayerViewModel;
@@ -28,6 +28,10 @@ class MessageHandler {
 				this.betting(message);
 				break;
 			}
+
+			case "raise": {
+				this.raise(message);
+			}
 			default:
 		}
 	}
@@ -35,6 +39,11 @@ class MessageHandler {
 	betting(message) {
 		this.playersViewModel.callBet(message.from, message.data);
 		this.userTableComponent.whoSend(message.from, "call", message.data);
+	}
+
+	raise(message) {
+		this.playersViewModel.callBet(message.from, message.data);
+		this.userTableComponent.whoSend(message.from, "raise", message.data);
 	}
 }
 
