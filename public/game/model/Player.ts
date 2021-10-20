@@ -13,6 +13,7 @@ export interface RaiseOption {
 	target: "bet" | "pot";
 	size: number;
 	isDevide?: boolean;
+	isAllin?: boolean;
 }
 
 export interface IPlayerProp {

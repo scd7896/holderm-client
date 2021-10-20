@@ -42,7 +42,7 @@ class MessageHandler {
 	}
 
 	raise(message) {
-		this.playersViewModel.callBet(message.from, message.data);
+		this.playersViewModel.raiseBet(message.from, message.data);
 		this.userTableComponent.whoSend(message.from, "raise", message.data);
 	}
 }

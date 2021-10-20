@@ -43,7 +43,11 @@ class ConnectionViewModel {
 					sendQueue.push(message);
 					break;
 				case "open":
-					sendQueue.forEach((message) => dataChannel.send(message));
+					while (sendQueue.length) {
+						const message = sendQueue.shift();
+						dataChannel.send(message);
+					}
+
 					dataChannel.send(message);
 					break;
 				case "closing":

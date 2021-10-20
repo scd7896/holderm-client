@@ -14,6 +14,7 @@ import socket from "../../rtcConnection/socket";
 import ConnectionViewModel from "../presenter/Connection";
 import MessageHandler from "../presenter/MessageHandler";
 import UserTable from "../components/User/UserTable";
+import Controllers from "../components/controllers/Controllers";
 
 class Game extends Phaser.Scene implements IViewModelListener {
 	private playersViewModel: PlayerViewModel;
@@ -30,6 +31,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 
 	private userTableComponent: UserTable;
 	private myUserComponent: User;
+	private contorollerComponent: Controllers;
 
 	preload() {
 		this.load.atlas("cards", "/assets/cards.png", "/assets/cards.json");
@@ -40,6 +42,11 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.myUserComponent.update({
 			stackMoney: this.myViewModel.state.user.stackMoney,
 			isConnection: true,
+		});
+		this.contorollerComponent.update({
+			myStackMoney: this.myViewModel.state.user.stackMoney,
+			lastBetMoney: this.lastBetMoney,
+			potMoney: this.potViewModel.state.pot,
 		});
 	}
 
@@ -52,27 +59,31 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		});
 
 		const cardButton = this.buttonComponent.cardButton();
-		const callButton = this.buttonComponent.callButton();
 
 		this.myViewModel.state.user.cards && this.myUserComponent.setMyCards(this.myViewModel.state.user.cards);
 
-		callButton.on("pointerdown", () => {
-			this.lastBetMoney = 100;
-
-			this.myViewModel.call(this.lastBetMoney);
-			this.potViewModel.bet(this.lastBetMoney);
-			this.myUserComponent.send("call", this.lastBetMoney);
-			const message: IMessage<number> = {
-				type: "bet",
-				from: this.myViewModel.state.user.id,
-				data: this.lastBetMoney,
-			};
-
-			this.connectionViewModel.broadCast(JSON.stringify(message));
-		});
-
 		cardButton.on("pointerdown", () => {
 			this.myViewModel.myCardSet([this.deck.pickCard(), this.deck.pickCard()]);
+		});
+
+		this.contorollerComponent = new Controllers(this, {
+			onCall: () => {
+				this.lastBetMoney = 100;
+
+				this.myViewModel.call(this.lastBetMoney);
+				this.potViewModel.bet(this.lastBetMoney);
+				this.myUserComponent.send("call", this.lastBetMoney);
+				const message: IMessage<number> = {
+					type: "bet",
+					from: this.myViewModel.state.user.id,
+					data: this.lastBetMoney,
+				};
+
+				this.connectionViewModel.broadCast(JSON.stringify(message));
+			},
+			myStackMoney: this.myViewModel.state.user.stackMoney,
+			lastBetMoney: 0,
+			potMoney: 0,
 		});
 
 		this.textComponent.totalPotSize(this.potViewModel.state.pot);

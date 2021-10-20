@@ -71,6 +71,17 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 		}
 	}
 
+	raiseBet(id: string, money: number) {
+		const index = this.state.players.findIndex((player) => id === player?.id);
+		if (index !== -1) {
+			this.state.players[index].state = PlayerState.RAISE;
+			this.state.players[index].call(money);
+			this.setState({
+				players: this.state.players,
+			});
+		}
+	}
+
 	findIdPlayerSet(id: string, user: Player) {
 		const index = this.state.players.findIndex((player) => id === player?.id);
 
