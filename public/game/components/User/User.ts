@@ -1,11 +1,13 @@
 import { Card } from "../../../types";
 import { getPercentPixel } from "../../../utils/getPercentPixel";
+import { PlayerState } from "../../model/Player";
 
 interface IProp {
 	x: number;
 	y: number;
 	stackMoney: number;
 	isConnection: boolean;
+	playerState: PlayerState;
 }
 
 class User extends Phaser.GameObjects.Group {
@@ -14,9 +16,11 @@ class User extends Phaser.GameObjects.Group {
 	private target: Phaser.Scene;
 	private isConnection: boolean;
 	private stackMoney: number;
+	private playerState: PlayerState;
 
 	private connectionText: Phaser.GameObjects.Text;
 	private moneyText: Phaser.GameObjects.Text;
+	private betedText: Phaser.GameObjects.Text;
 
 	constructor(target: Phaser.Scene, prop: IProp) {
 		super(target);
@@ -25,7 +29,8 @@ class User extends Phaser.GameObjects.Group {
 		this.y = getPercentPixel(prop.y);
 		this.stackMoney = prop.stackMoney;
 		this.isConnection = prop.isConnection;
-
+		this.playerState = prop.playerState;
+		this.betTextRender();
 		this.render();
 	}
 
@@ -47,17 +52,36 @@ class User extends Phaser.GameObjects.Group {
 			}
 		);
 		this.add(this.moneyText);
+		this.betTextRender();
 	}
 
 	update(prop: Omit<IProp, "x" | "y">) {
 		this.stackMoney = prop.stackMoney;
 		this.isConnection = prop.isConnection;
+		this.playerState = prop.playerState;
 
 		if (this.isConnection) {
 			this.remove(this.connectionText);
 		}
 		this.moneyText.text = this.stackMoney.toString();
 		this.moneyText.updateText();
+		this.betTextRender();
+	}
+
+	betTextRender() {
+		if (this.playerState === PlayerState.CALL || this.playerState === PlayerState.RAISE) {
+			if (!this.betedText) {
+				this.betedText = this.target.add.text(this.x - getPercentPixel(4), this.y - getPercentPixel(4), "베팅 참여함", {
+					fontSize: "14px",
+				});
+				this.add(this.betedText);
+			}
+		} else {
+			if (this.betedText) {
+				this.betedText.destroy();
+				this.betedText = null;
+			}
+		}
 	}
 
 	setCards() {
@@ -93,6 +117,15 @@ class User extends Phaser.GameObjects.Group {
 
 	send(message: string, money: number) {
 		const text = this.target.add.text(this.x + getPercentPixel(3), this.y, `${message}: ${money}`, {
+			fontSize: "12px",
+		});
+		setTimeout(() => {
+			text.destroy();
+		}, 500);
+	}
+
+	foldSend() {
+		const text = this.target.add.text(this.x + getPercentPixel(3), this.y, `fold`, {
 			fontSize: "12px",
 		});
 		setTimeout(() => {

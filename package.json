@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "webpack --watch",
+    "prod": "webpack",
     "serve": "http-server -p 10000 .",
     "test": "jest --watch"
   },

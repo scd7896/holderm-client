@@ -42,6 +42,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.myUserComponent.update({
 			stackMoney: this.myViewModel.state.user.stackMoney,
 			isConnection: true,
+			playerState: this.myViewModel.state.user.state,
 		});
 		this.contorollerComponent.update({
 			myStackMoney: this.myViewModel.state.user.stackMoney,
@@ -56,6 +57,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			y: 30,
 			stackMoney: this.myViewModel.state.user.stackMoney,
 			isConnection: true,
+			playerState: this.myViewModel.state.user.state,
 		});
 
 		const cardButton = this.buttonComponent.cardButton();
@@ -68,8 +70,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 
 		this.contorollerComponent = new Controllers(this, {
 			onCall: () => {
-				this.lastBetMoney = 100;
-
 				this.myViewModel.call(this.lastBetMoney);
 				this.potViewModel.bet(this.lastBetMoney);
 				this.myUserComponent.send("call", this.lastBetMoney);
@@ -79,6 +79,18 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: this.lastBetMoney,
 				};
 
+				this.connectionViewModel.broadCast(JSON.stringify(message));
+			},
+			onRaise: (money) => {
+				this.lastBetMoney = money;
+				this.myViewModel.raise(money);
+				this.potViewModel.bet(this.lastBetMoney);
+				this.myUserComponent.send("raise", money);
+				const message: IMessage<number> = {
+					type: "raise",
+					from: this.myViewModel.state.user.id,
+					data: this.lastBetMoney,
+				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
 			},
 			myStackMoney: this.myViewModel.state.user.stackMoney,
@@ -112,7 +124,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			messageHandler: this.messageHandler,
 		});
 
-		this.lastBetMoney = 0;
+		this.lastBetMoney = 100;
 		this.textComponent = new Text(this);
 		this.buttonComponent = new Button(this);
 

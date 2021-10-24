@@ -22,12 +22,13 @@ class UserTable extends Phaser.GameObjects.Layer {
 
 		this.userComponents = this.players
 			.filter(({ isMy }) => !isMy)
-			.map(({ stackMoney, isConnection }, index) => {
+			.map(({ stackMoney, isConnection, state }, index) => {
 				return new User(target, {
 					x: positions[index][0],
 					y: positions[index][1],
 					stackMoney: stackMoney,
 					isConnection,
+					playerState: state,
 				});
 			});
 	}
@@ -39,18 +40,26 @@ class UserTable extends Phaser.GameObjects.Layer {
 		}
 	}
 
+	whoFold(key: string) {
+		const index = this.players.filter(({ isMy }) => !isMy).findIndex((player) => player.id === key);
+		if (index !== -1) {
+			this.userComponents[index].foldSend();
+		}
+	}
+
 	update(players: Player[]) {
 		console.log("call", players);
 		this.userComponents.map((user) => user.destroy(true));
 		this.players = players;
 		this.userComponents = this.players
 			.filter(({ isMy }) => !isMy)
-			.map(({ stackMoney, isConnection }, index) => {
+			.map(({ stackMoney, isConnection, state }, index) => {
 				return new User(this.target, {
 					x: positions[index][0],
 					y: positions[index][1],
 					stackMoney: stackMoney,
 					isConnection,
+					playerState: state,
 				});
 			});
 	}

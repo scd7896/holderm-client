@@ -60,9 +60,8 @@ class Player {
 		if (betMoney > this.stackMoney) {
 			this.allIn();
 		} else {
-			this.betMoney += betMoney;
-			this.stackMoney -= betMoney;
-			this.state = PlayerState.ACTION;
+			this.state = PlayerState.CALL;
+			this.betting(betMoney);
 		}
 	}
 
@@ -70,19 +69,13 @@ class Player {
 		this.state = PlayerState.FOLD;
 	}
 
-	raise(betMoney: number, potMoney: number, option: RaiseOption) {
-		if (option.target === "bet") {
-			const mybetMoney = betMoney * option.size;
-			this.call(mybetMoney);
-		} else {
-			if (option.isDevide) {
-				const mybetMoney = Math.floor(potMoney / option.size);
-				this.call(mybetMoney);
-			} else {
-				const mybetMoney = potMoney * option.size;
-				this.call(mybetMoney);
-			}
-		}
+	raise(betMoney: number) {
+		this.state = PlayerState.RAISE;
+		this.betting(betMoney);
+	}
+
+	stateInitalize() {
+		this.state = PlayerState.ACTION;
 	}
 }
 

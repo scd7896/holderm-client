@@ -76,6 +76,22 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 		if (index !== -1) {
 			this.state.players[index].state = PlayerState.RAISE;
 			this.state.players[index].call(money);
+
+			this.setState({
+				players: this.state.players.map((player, i) => {
+					if ((player.state === PlayerState.RAISE || player.state === PlayerState.CALL) && index !== i) {
+						player.stateInitalize();
+					}
+					return player;
+				}),
+			});
+		}
+	}
+
+	fold(id: string) {
+		const index = this.state.players.findIndex((player) => id === player?.id);
+		if (index !== -1) {
+			this.state.players[index].fold();
 			this.setState({
 				players: this.state.players,
 			});

@@ -28,9 +28,11 @@ class MessageHandler {
 				this.betting(message);
 				break;
 			}
-
 			case "raise": {
 				this.raise(message);
+			}
+			case "fold": {
+				this.fold(message);
 			}
 			default:
 		}
@@ -44,6 +46,11 @@ class MessageHandler {
 	raise(message) {
 		this.playersViewModel.raiseBet(message.from, message.data);
 		this.userTableComponent.whoSend(message.from, "raise", message.data);
+		this.myViewModel.stateInitalize();
+	}
+
+	fold(message) {
+		this.userTableComponent.whoFold(message.from);
 	}
 }
 

@@ -32,8 +32,8 @@ class MyViewModel extends ACViewModel<State> {
 		});
 	}
 
-	raise(berMoney: number, potMoney: number, option: RaiseOption) {
-		this.state.user.raise(berMoney, potMoney, option);
+	raise(berMoney: number) {
+		this.state.user.raise(berMoney);
 		this.setState({
 			user: this.state.user,
 		});
@@ -48,6 +48,13 @@ class MyViewModel extends ACViewModel<State> {
 
 	fold() {
 		this.state.user.fold();
+		this.setState({
+			user: this.state.user,
+		});
+	}
+
+	stateInitalize() {
+		this.state.user.stateInitalize();
 		this.setState({
 			user: this.state.user,
 		});
