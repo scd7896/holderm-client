@@ -20,18 +20,23 @@ const berRaiseType: RaiseOption[] = [
 	},
 ];
 
+interface IProp {
+	onRaiseSubmit: (raiseOption: RaiseOption) => void;
+}
 class RaiseMenu extends Phaser.GameObjects.Group implements IViewModelListener {
 	private target: Phaser.Scene;
 	private buttonComponent: Button;
 	private raiseMenuViewModel: RaiseMenuViewModel;
 	private raiseButtons: Array<any>;
+	private props: IProp;
 
-	constructor(target: Phaser.Scene) {
+	constructor(target: Phaser.Scene, prop: IProp) {
 		super(target);
 		this.target = target;
 		this.buttonComponent = new Button(target);
 		this.raiseMenuViewModel = new RaiseMenuViewModel();
 		this.raiseMenuViewModel.subscribe(this);
+		this.props = prop;
 	}
 
 	stateUpdate() {
@@ -51,7 +56,7 @@ class RaiseMenu extends Phaser.GameObjects.Group implements IViewModelListener {
 			getPercentPixel(85),
 			getPercentPixel(20),
 			getPercentPixel(20),
-			getPercentPixel(45),
+			getPercentPixel(35),
 			0xefefef
 		);
 		this.raiseButtons = berRaiseType.map((option, index) => {
@@ -70,6 +75,16 @@ class RaiseMenu extends Phaser.GameObjects.Group implements IViewModelListener {
 
 			return [button, text];
 		});
+
+		const submitButtton = this.buttonComponent.playRaiseSubmitButton();
+
+		submitButtton.on("pointerdown", () => {
+			const selectedIndex = this.raiseMenuViewModel.state.selectedIndex;
+			if (selectedIndex !== -1) {
+				this.props.onRaiseSubmit(berRaiseType[selectedIndex]);
+			}
+		});
+		this.add(submitButtton);
 		this.add(wrapper);
 	}
 
