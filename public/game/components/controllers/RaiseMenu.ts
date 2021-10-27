@@ -89,7 +89,7 @@ class RaiseMenu extends Phaser.GameObjects.Group implements IViewModelListener {
 	}
 
 	hide() {
-		this.clear(true);
+		this.destroy(true);
 	}
 }
 

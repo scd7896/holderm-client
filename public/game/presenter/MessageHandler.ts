@@ -40,11 +40,14 @@ class MessageHandler {
 
 	betting(message) {
 		this.playersViewModel.callBet(message.from, message.data);
+		this.potViewModel.bet(message.data);
 		this.userTableComponent.whoSend(message.from, "call", message.data);
 	}
 
 	raise(message) {
 		this.playersViewModel.raiseBet(message.from, message.data);
+		this.potViewModel.bet(message.data);
+		this.playersViewModel.ohtherUserSetAction(message.from);
 		this.userTableComponent.whoSend(message.from, "raise", message.data);
 		this.myViewModel.stateInitalize();
 	}

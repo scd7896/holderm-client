@@ -38,6 +38,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	}
 
 	stateUpdate() {
+		console.log("몇번???");
 		this.userTableComponent.update(this.playersViewModel.state.players);
 		this.myUserComponent.update({
 			stackMoney: this.myViewModel.state.user.stackMoney,
@@ -90,6 +91,17 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					type: "raise",
 					from: this.myViewModel.state.user.id,
 					data: this.lastBetMoney,
+				};
+				this.playersViewModel.ohtherUserSetAction(this.myViewModel.state.user.id);
+				this.connectionViewModel.broadCast(JSON.stringify(message));
+			},
+			onFold: () => {
+				this.myViewModel.fold();
+				this.myUserComponent.send("fold", 0);
+				const message: IMessage<number> = {
+					type: "fold",
+					from: this.myViewModel.state.user.id,
+					data: 0,
 				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
 			},

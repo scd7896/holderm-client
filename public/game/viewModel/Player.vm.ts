@@ -1,6 +1,5 @@
 import { ACViewModel } from ".";
 import { Card } from "../../types";
-import Deck from "../model/Deck";
 import Player, { PlayerState } from "../model/Player";
 
 interface IPlayer {
@@ -104,6 +103,21 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 		if (index !== -1) {
 			this.state.players[index] = user;
 		}
+	}
+
+	ohtherUserSetAction(id: string) {
+		const index = this.state.players.findIndex((player) => id === player?.id);
+
+		this.setState({
+			players: this.state.players.map((player, i) => {
+				if (index !== i) {
+					if (player.state === PlayerState.CALL || player.state === PlayerState.RAISE) {
+						player.state = PlayerState.ACTION;
+					}
+				}
+				return player;
+			}),
+		});
 	}
 }
 

@@ -21,7 +21,6 @@ export abstract class ACViewModel<T> {
 	}
 
 	setState(nextState: any) {
-		const prevState = JSON.parse(JSON.stringify(this.state));
 		this.state = {
 			...this.state,
 			...nextState,
@@ -31,7 +30,6 @@ export abstract class ACViewModel<T> {
 		}
 		this.timer = setTimeout(() => {
 			this.listeners.map((listener) => {
-				console.log("statedUpdate", listener);
 				listener.stateUpdate();
 			});
 		}, 0);
