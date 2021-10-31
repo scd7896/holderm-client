@@ -21,6 +21,14 @@ class Deck {
 	pickCard() {
 		return this.cards.pop();
 	}
+
+	setDeck(cards: Card[]) {
+		this.cards = cards;
+	}
+
+	get card() {
+		return this.cards;
+	}
 }
 
 export default Deck;

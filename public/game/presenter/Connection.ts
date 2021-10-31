@@ -95,7 +95,7 @@ class ConnectionViewModel {
 			const pc = getConnection(number, id);
 			this.createDataChannel(pc, id);
 			this.rtcConnections[id] = pc;
-			this.playerViewModel.joinPlayer(new Player({ stackMoney: money, id, isMy: false }), number);
+			this.playerViewModel.joinPlayer(new Player({ stackMoney: money, id, isMy: false, isHost: false }), number);
 		});
 	}
 
@@ -154,12 +154,22 @@ class ConnectionViewModel {
 			const otherPlayers: Player[] = [];
 			for (let i = (data.you.number + 1) % totalLength; i !== data.you.number; ) {
 				if (i !== data.you.number) {
-					const player = new Player({ stackMoney: ohterUsers[i].money, isMy: false, id: ohterUsers[i].id });
+					const player = new Player({
+						stackMoney: ohterUsers[i].money,
+						isMy: false,
+						id: ohterUsers[i].id,
+						isHost: false,
+					});
 					otherPlayers.push(player);
 				}
 				i = (i + 1) % totalLength;
 			}
-			const my = new Player({ isMy: true, id: data.you.id, stackMoney: data.you.money });
+
+			const my = new Player({ isMy: true, id: data.you.id, stackMoney: data.you.money, isHost: false });
+			const isMeHost = !otherPlayers.reduce((acc, player) => player.isHost || acc, false);
+			if (otherPlayers.length === 0 || isMeHost) {
+				this.myViewModel.hostSet(true);
+			}
 			this.playerViewModel.userSets([...otherPlayers, my]);
 			this.myViewModel.playerSet(my, data.you.number);
 		});

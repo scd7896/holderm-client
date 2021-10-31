@@ -1,5 +1,6 @@
 import { IMessage } from "../../types";
 import UserTable from "../components/User/UserTable";
+import DeckViewModel from "../viewModel/Deck.vm";
 import MyViewModel from "../viewModel/My.vm";
 import PlayerViewModel from "../viewModel/Player.vm";
 import PotViewModel from "../viewModel/Pot.vm";
@@ -10,14 +11,16 @@ class MessageHandler {
 	private myViewModel: MyViewModel;
 	private potViewModel: PotViewModel;
 	private turnViewModel: TurnViewModel;
+	private deckViewModel: DeckViewModel;
 
 	private userTableComponent: UserTable;
 
-	constructor({ playersViewModel, myViewModel, potViewModel, turnViewModel, userTable }) {
+	constructor({ playersViewModel, myViewModel, potViewModel, turnViewModel, userTable, deckViewModel }) {
 		this.playersViewModel = playersViewModel;
 		this.myViewModel = myViewModel;
 		this.potViewModel = potViewModel;
 		this.turnViewModel = turnViewModel;
+		this.deckViewModel = deckViewModel;
 
 		this.userTableComponent = userTable;
 	}
@@ -34,8 +37,15 @@ class MessageHandler {
 			case "fold": {
 				this.fold(message);
 			}
+			case "deckSet": {
+				this.deckSet(message);
+			}
 			default:
 		}
+	}
+
+	deckSet(message) {
+		this.deckViewModel.setDeck(message.data);
 	}
 
 	betting(message) {

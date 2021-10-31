@@ -4,17 +4,24 @@ import Player, { RaiseOption } from "../model/Player";
 interface State {
 	user: Player;
 	number: number;
+	isHost: boolean;
 }
 
 class MyViewModel extends ACViewModel<State> {
 	constructor(user: Player, number: number) {
-		super({ user: user, number });
+		super({ user: user, number, isHost: false });
 	}
 
 	playerSet(user: Player, number: number) {
 		this.setState({
 			user,
 			number,
+		});
+	}
+
+	hostSet(isHost: boolean) {
+		this.setState({
+			isHost,
 		});
 	}
 

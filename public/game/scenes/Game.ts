@@ -15,6 +15,7 @@ import ConnectionViewModel from "../presenter/Connection";
 import MessageHandler from "../presenter/MessageHandler";
 import UserTable from "../components/User/UserTable";
 import Controllers from "../components/controllers/Controllers";
+import DeckViewModel from "../viewModel/Deck.vm";
 
 class Game extends Phaser.Scene implements IViewModelListener {
 	private playersViewModel: PlayerViewModel;
@@ -22,9 +23,8 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	private potViewModel: PotViewModel;
 	private turnViewModel: TurnViewModel;
 	private connectionViewModel: ConnectionViewModel;
+	private deckViewModel: DeckViewModel;
 	private messageHandler: MessageHandler;
-	private cards: Card[];
-	private deck: Deck;
 	private buttonComponent: Button;
 	private textComponent: Text;
 	private lastBetMoney: number;
@@ -38,7 +38,13 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	}
 
 	stateUpdate() {
-		console.log("몇번???");
+		if (this.myViewModel.state.isHost && !this.deckViewModel.state.card?.length) {
+			const cards = this.createCards();
+			const deck = new Deck(cards);
+			deck.shuffle();
+			console.log(this.deckViewModel.state.card?.length);
+			this.deckViewModel.setDeck(deck.card);
+		}
 		this.userTableComponent.update(this.playersViewModel.state.players);
 		this.myUserComponent.update({
 			stackMoney: this.myViewModel.state.user.stackMoney,
@@ -61,13 +67,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			playerState: this.myViewModel.state.user.state,
 		});
 
-		const cardButton = this.buttonComponent.cardButton();
-
 		this.myViewModel.state.user.cards && this.myUserComponent.setMyCards(this.myViewModel.state.user.cards);
-
-		cardButton.on("pointerdown", () => {
-			this.myViewModel.myCardSet([this.deck.pickCard(), this.deck.pickCard()]);
-		});
 
 		this.contorollerComponent = new Controllers(this, {
 			onCall: () => {
@@ -81,6 +81,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 				};
 
 				this.connectionViewModel.broadCast(JSON.stringify(message));
+				this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
 			},
 			onRaise: (money) => {
 				this.lastBetMoney = money;
@@ -104,6 +105,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: 0,
 				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
+				this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
 			},
 			myStackMoney: this.myViewModel.state.user.stackMoney,
 			lastBetMoney: 0,
@@ -115,11 +117,11 @@ class Game extends Phaser.Scene implements IViewModelListener {
 
 	create() {
 		this.createCards();
-		this.createDeck();
 		this.potViewModel = new PotViewModel();
 		this.playersViewModel = new PlayerViewModel();
 		this.turnViewModel = new TurnViewModel();
-		const player = new Player({ stackMoney: 8000, id: "", isMy: true });
+		this.deckViewModel = new DeckViewModel();
+		const player = new Player({ stackMoney: 8000, id: "", isMy: true, isHost: false });
 		this.myViewModel = new MyViewModel(player, 0);
 		this.userTableComponent = new UserTable(this, this.playersViewModel.state.players);
 
@@ -129,6 +131,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			myViewModel: this.myViewModel,
 			potViewModel: this.potViewModel,
 			userTable: this.userTableComponent,
+			deckViewModel: this.deckViewModel,
 		});
 		this.connectionViewModel = new ConnectionViewModel({
 			myViewModel: this.myViewModel,
@@ -154,11 +157,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		}, 500);
 	}
 
-	createDeck() {
-		this.deck = new Deck(this.cards);
-		this.deck.shuffle();
-	}
-
 	createCards() {
 		const frames = this.textures.get("cards").getFrameNames();
 		const cards = frames
@@ -169,7 +167,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 				const suit: SUIT = suitStr as SUIT;
 				return new Card(suit, number);
 			});
-		this.cards = cards;
+		return cards;
 	}
 }
 
