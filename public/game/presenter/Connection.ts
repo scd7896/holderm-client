@@ -31,11 +31,11 @@ class ConnectionViewModel {
 		this.getOfferListen();
 		this.getAnswerListen();
 		this.getCandidateListen();
+		this.userDisconnectListen();
 	}
 
 	broadCast(message: string) {
 		const keys = Object.keys(this.dataChannels);
-
 		keys.map((key) => {
 			const dataChannel = this.dataChannels[key];
 			switch (dataChannel.readyState) {
@@ -47,7 +47,6 @@ class ConnectionViewModel {
 						const message = sendQueue.shift();
 						dataChannel.send(message);
 					}
-
 					dataChannel.send(message);
 					break;
 				case "closing":
@@ -79,6 +78,12 @@ class ConnectionViewModel {
 		this.dataChannels[key] = dataChannel;
 	}
 
+	userDisconnectListen() {
+		socket.on("user_disconnect", (data) => {
+			console.log("disconnect", data);
+		});
+	}
+
 	getCandidateListen() {
 		socket.on("getCandidate", ({ candidate, fromSocketId, toSocketId }) => {
 			const pc = this.rtcConnections[fromSocketId];
@@ -91,24 +96,38 @@ class ConnectionViewModel {
 	}
 
 	userJoinListen() {
-		socket.on("new_user", ({ id, number, nickname, money }) => {
-			const pc = getConnection(number, id);
-			this.createDataChannel(pc, id);
-			this.rtcConnections[id] = pc;
-			this.playerViewModel.joinPlayer(new Player({ stackMoney: money, id, isMy: false, isHost: false }), number);
+		socket.on("newUser", ({ socketId, payload }) => {
+			const pc = getConnection(0, socketId);
+			this.createDataChannel(pc, socketId);
+			this.rtcConnections[socketId] = pc;
+			const index = this.playerViewModel.state.players.findIndex((player) => player.nickname === payload.nickname);
+			if (index !== -1) {
+				this.playerViewModel.rejoin(payload.nickname);
+			} else {
+				this.playerViewModel.joinPlayer(
+					new Player({
+						stackMoney: payload.money || 0,
+						id: payload.nickname,
+						isMy: false,
+						isHost: false,
+						nickname: payload.nickname,
+					}),
+					this.playerViewModel.state.players.length
+				);
+			}
 		});
 	}
 
 	getAnswerListen() {
-		socket.on("getAnswer", async ({ sdp, fromSocketId, number, user }) => {
+		socket.on("getAnswer", async ({ sdp, fromSocketId, payload }) => {
 			const pc = this.rtcConnections[fromSocketId];
 			await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-			this.playerViewModel.findIdPlayerSet(user.id, new Player({ ...user, isMy: false }));
+			this.playerViewModel.findIdPlayerSet(payload.id, new Player({ ...payload, isMy: false }));
 		});
 	}
 
 	getOfferListen() {
-		socket.on("getOffer", ({ sdp, fromSocketId, number, user }) => {
+		socket.on("getOffer", ({ sdp, fromSocketId, payload }) => {
 			const pc = this.rtcConnections[fromSocketId];
 			pc.setRemoteDescription(new RTCSessionDescription(sdp));
 			pc.createAnswer().then(async (sdp) => {
@@ -117,61 +136,66 @@ class ConnectionViewModel {
 				socket.emit("answer", {
 					sdp,
 					toSocketId: fromSocketId,
-					number: this.myViewModel.state.number,
-					user: this.myViewModel.state.user,
+					payload: this.myViewModel.state.user,
 				});
 			});
 		});
 	}
 
 	allUserListen() {
-		socket.on("all_users", (data: IJoinInfo) => {
-			const roomUsers = data.users.filter((a) => a !== null);
-			const ohterUsers = [data.you, ...roomUsers]
-				.map(({ id, money, nickname, number }) => {
-					if (data.you.number !== number) {
-						const pc = getConnection(data.you.number, id);
+		socket.on("getAllUser", (data: IJoinInfo) => {
+			const myNumber = data.users.findIndex((user) => user.socketId === data.you.socketId);
+			console.log("datas", data);
+			const roomUsers = data.users.filter((a) => a !== null && a.socketId !== data.you.socketId);
+			const my = new Player({
+				isMy: true,
+				id: data.you.socketId,
+				stackMoney: 8000,
+				isHost: false,
+				nickname: data.you.nickname,
+			});
 
-						this.createDataChannel(pc, id);
-						pc.createOffer().then(async (sdp) => {
-							await pc.setLocalDescription(new RTCSessionDescription(sdp));
-							socket.emit("offer", { sdp, toSocketId: id, user: data.you, number: data.you.number });
-						});
+			const allUsers = [data.you, ...roomUsers].map(({ socketId, nickname, join }) => {
+				if (data.you.socketId !== socketId && join) {
+					const pc = getConnection(data.you.socketId, socketId);
+					this.createDataChannel(pc, socketId);
+					this.rtcConnections[socketId] = pc;
+					pc.createOffer().then(async (sdp) => {
+						await pc.setLocalDescription(new RTCSessionDescription(sdp));
+						socket.emit("offer", { sdp, toSocketId: socketId, payload: my });
+					});
+				}
+				return {
+					socketId,
+					nickname,
+				};
+			});
 
-						this.rtcConnections[id] = pc;
-					}
+			const totalLength = allUsers.length;
 
-					return {
-						id,
-						money,
-						nickname,
-						number,
-					};
-				})
-				.sort((a, b) => a.number - b.number);
-
-			const totalLength = ohterUsers.length;
 			const otherPlayers: Player[] = [];
-			for (let i = (data.you.number + 1) % totalLength; i !== data.you.number; ) {
-				if (i !== data.you.number) {
+			for (let i = (myNumber + 1) % totalLength; i !== myNumber; ) {
+				if (i !== myNumber) {
 					const player = new Player({
-						stackMoney: ohterUsers[i].money,
+						stackMoney: 0,
 						isMy: false,
-						id: ohterUsers[i].id,
+						id: allUsers[i].socketId,
 						isHost: false,
+						nickname: allUsers[i].nickname,
 					});
 					otherPlayers.push(player);
 				}
 				i = (i + 1) % totalLength;
 			}
 
-			const my = new Player({ isMy: true, id: data.you.id, stackMoney: data.you.money, isHost: false });
 			const isMeHost = !otherPlayers.reduce((acc, player) => player.isHost || acc, false);
 			if (otherPlayers.length === 0 || isMeHost) {
 				this.myViewModel.hostSet(true);
 			}
-			this.playerViewModel.userSets([...otherPlayers, my]);
-			this.myViewModel.playerSet(my, data.you.number);
+
+			this.playerViewModel.userSets(otherPlayers);
+			this.myViewModel.playerSet(my, myNumber);
+			console.log("getUserAll");
 		});
 	}
 }

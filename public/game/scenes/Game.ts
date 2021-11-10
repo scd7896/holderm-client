@@ -28,6 +28,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	private buttonComponent: Button;
 	private textComponent: Text;
 	private lastBetMoney: number;
+	private userName: string;
 
 	private userTableComponent: UserTable;
 	private myUserComponent: User;
@@ -38,37 +39,36 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	}
 
 	stateUpdate() {
-		if (this.myViewModel.state.isHost && !this.deckViewModel.state.card?.length) {
+		console.log("called");
+		if (this.myViewModel?.state.isHost && !this.deckViewModel?.state.card?.length) {
 			const cards = this.createCards();
 			const deck = new Deck(cards);
 			deck.shuffle();
-			console.log(this.deckViewModel.state.card?.length);
 			this.deckViewModel.setDeck(deck.card);
 		}
-		this.userTableComponent.update(this.playersViewModel.state.players);
-		this.myUserComponent.update({
-			stackMoney: this.myViewModel.state.user.stackMoney,
+		this.userTableComponent?.update(this.playersViewModel?.state.players || []);
+		this.myUserComponent?.update({
+			stackMoney: this.myViewModel?.state.user.stackMoney || 0,
 			isConnection: true,
-			playerState: this.myViewModel.state.user.state,
+			playerState: this.myViewModel?.state.user.state || 0,
 		});
-		this.contorollerComponent.update({
-			myStackMoney: this.myViewModel.state.user.stackMoney,
+		this.contorollerComponent?.update({
+			myStackMoney: this.myViewModel?.state.user.stackMoney || 0,
 			lastBetMoney: this.lastBetMoney,
-			potMoney: this.potViewModel.state.pot,
+			potMoney: this.potViewModel?.state.pot || 0,
 		});
 	}
 
 	render() {
+		console.log("render");
 		this.myUserComponent = new User(this, {
 			x: 40,
 			y: 30,
-			stackMoney: this.myViewModel.state.user.stackMoney,
+			stackMoney: this.myViewModel?.state.user.stackMoney || 0,
 			isConnection: true,
-			playerState: this.myViewModel.state.user.state,
+			playerState: this.myViewModel?.state.user.state || 0,
 		});
-
-		this.myViewModel.state.user.cards && this.myUserComponent.setMyCards(this.myViewModel.state.user.cards);
-
+		this.myViewModel?.state.user.cards && this.myUserComponent.setMyCards(this.myViewModel?.state.user.cards || []);
 		this.contorollerComponent = new Controllers(this, {
 			onCall: () => {
 				this.myViewModel.call(this.lastBetMoney);
@@ -79,7 +79,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					from: this.myViewModel.state.user.id,
 					data: this.lastBetMoney,
 				};
-
 				this.connectionViewModel.broadCast(JSON.stringify(message));
 				this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
 			},
@@ -107,21 +106,20 @@ class Game extends Phaser.Scene implements IViewModelListener {
 				this.connectionViewModel.broadCast(JSON.stringify(message));
 				this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
 			},
-			myStackMoney: this.myViewModel.state.user.stackMoney,
+			myStackMoney: this.myViewModel?.state.user.stackMoney || 0,
 			lastBetMoney: 0,
 			potMoney: 0,
 		});
-
-		this.textComponent.totalPotSize(this.potViewModel.state.pot);
+		this.textComponent.totalPotSize(this.potViewModel?.state.pot || 0);
 	}
 
 	create() {
-		this.createCards();
+		this.userName = window.prompt("너의 이름은");
 		this.potViewModel = new PotViewModel();
 		this.playersViewModel = new PlayerViewModel();
 		this.turnViewModel = new TurnViewModel();
 		this.deckViewModel = new DeckViewModel();
-		const player = new Player({ stackMoney: 8000, id: "", isMy: true, isHost: false });
+		const player = new Player({ stackMoney: 8000, id: "", isMy: true, isHost: false, nickname: this.userName });
 		this.myViewModel = new MyViewModel(player, 0);
 		this.userTableComponent = new UserTable(this, this.playersViewModel.state.players);
 
@@ -142,7 +140,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.lastBetMoney = 100;
 		this.textComponent = new Text(this);
 		this.buttonComponent = new Button(this);
-
 		this.playersViewModel.subscribe(this);
 		this.myViewModel.subscribe(this);
 		this.potViewModel.subscribe(this);
@@ -152,8 +149,13 @@ class Game extends Phaser.Scene implements IViewModelListener {
 
 	createConnection() {
 		setTimeout(() => {
-			const name = window.prompt("너의 이름은");
-			socket.emit("join_room", { room: "test", money: 8000, nickname: name });
+			socket.emit("join_room", {
+				room: "test",
+				payload: {
+					nickname: this.userName,
+					id: this.userName,
+				},
+			});
 		}, 500);
 	}
 

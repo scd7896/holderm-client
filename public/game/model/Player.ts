@@ -21,6 +21,8 @@ export interface IPlayerProp {
 	isMy: boolean;
 	id: string;
 	isHost: boolean;
+	nickname: string;
+	isJoin?: boolean;
 }
 class Player {
 	public state: PlayerState;
@@ -31,8 +33,10 @@ class Player {
 	public isConnection: boolean;
 	public id: string;
 	public isHost: boolean;
+	public nickname: string;
+	public isJoin: boolean;
 
-	constructor({ isMy, id, stackMoney, isHost }: IPlayerProp) {
+	constructor({ isMy, id, stackMoney, isHost, nickname, isJoin = true }: IPlayerProp) {
 		this.state = PlayerState.LIVE;
 		this.stackMoney = stackMoney || 0;
 		this.betMoney = 0;
@@ -40,6 +44,8 @@ class Player {
 		this.isConnection = isMy;
 		this.id = id;
 		this.isHost = isHost;
+		this.nickname = nickname;
+		this.isJoin = isJoin;
 	}
 
 	getCards() {

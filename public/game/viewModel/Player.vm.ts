@@ -30,6 +30,16 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 		}
 	}
 
+	rejoin(nickname: string) {
+		const index = this.state.players.findIndex((player) => player.nickname === nickname);
+		if (index !== -1) {
+			this.state.players[index].isJoin = true;
+			this.setState({
+				players: this.state.players,
+			});
+		}
+	}
+
 	quitPlayer(index: number) {
 		this.setState({
 			players: this.state.players.filter((_, i) => i !== index),
@@ -99,7 +109,8 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 
 	findIdPlayerSet(id: string, user: Player) {
 		const index = this.state.players.findIndex((player) => id === player?.id);
-
+		console.log(this.state.players, id);
+		console.log("target", index);
 		if (index !== -1) {
 			this.state.players[index] = user;
 		}

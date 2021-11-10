@@ -46,10 +46,9 @@ export enum TURN_TYPE {
 }
 
 export interface UserInfo {
-	id: string;
-	money: number;
+	socketId: string;
 	nickname: string;
-	number: number;
+	join: boolean;
 }
 
 export interface IJoinInfo {
