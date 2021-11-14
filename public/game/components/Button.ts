@@ -118,12 +118,12 @@ class Button {
 		);
 		button.setInteractive();
 
-		this.scene.add.text(getPercentPixel(79), getPercentPixel(30), "완료", {
+		const text = this.scene.add.text(getPercentPixel(79), getPercentPixel(30), "완료", {
 			fontSize: "16px",
 			color: "#000000",
 		});
 
-		return button;
+		return [button, text];
 	}
 }
 
