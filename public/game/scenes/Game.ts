@@ -39,7 +39,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	}
 
 	stateUpdate() {
-		console.log("called");
 		if (this.myViewModel?.state.isHost && !this.deckViewModel?.state.card?.length) {
 			const cards = this.createCards();
 			const deck = new Deck(cards);
@@ -60,7 +59,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	}
 
 	render() {
-		console.log("render");
 		this.myUserComponent = new User(this, {
 			x: 40,
 			y: 30,

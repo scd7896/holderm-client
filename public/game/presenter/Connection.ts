@@ -122,14 +122,15 @@ class ConnectionViewModel {
 		socket.on("getAnswer", async ({ sdp, fromSocketId, payload }) => {
 			const pc = this.rtcConnections[fromSocketId];
 			await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-			this.playerViewModel.findIdPlayerSet(payload.id, new Player({ ...payload, isMy: false }));
+			this.playerViewModel.findIdPlayerSet(payload.nickname, new Player({ ...payload, isMy: false }));
 		});
 	}
 
 	getOfferListen() {
-		socket.on("getOffer", ({ sdp, fromSocketId, payload }) => {
+		socket.on("getOffer", async ({ sdp, fromSocketId, payload }) => {
 			const pc = this.rtcConnections[fromSocketId];
-			pc.setRemoteDescription(new RTCSessionDescription(sdp));
+			await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+			this.playerViewModel.findIdPlayerSet(payload.nickname, new Player({ ...payload, isMy: false }));
 			pc.createAnswer().then(async (sdp) => {
 				await pc.setLocalDescription(new RTCSessionDescription(sdp));
 				this.createDataChannel(pc, fromSocketId);
@@ -145,8 +146,6 @@ class ConnectionViewModel {
 	allUserListen() {
 		socket.on("getAllUser", (data: IJoinInfo) => {
 			const myNumber = data.users.findIndex((user) => user.socketId === data.you.socketId);
-			console.log("datas", data);
-			const roomUsers = data.users.filter((a) => a !== null && a.socketId !== data.you.socketId);
 			const my = new Player({
 				isMy: true,
 				id: data.you.socketId,
@@ -155,7 +154,7 @@ class ConnectionViewModel {
 				nickname: data.you.nickname,
 			});
 
-			const allUsers = [data.you, ...roomUsers].map(({ socketId, nickname, join }) => {
+			const allUsers = data.users.map(({ socketId, nickname, join }) => {
 				if (data.you.socketId !== socketId && join) {
 					const pc = getConnection(data.you.socketId, socketId);
 					this.createDataChannel(pc, socketId);
@@ -195,7 +194,6 @@ class ConnectionViewModel {
 
 			this.playerViewModel.userSets(otherPlayers);
 			this.myViewModel.playerSet(my, myNumber);
-			console.log("getUserAll");
 		});
 	}
 }
