@@ -1,5 +1,5 @@
 import * as Phaser from "phaser";
-import { Card, IMessage, SUIT } from "../../types";
+import { Card, IMessage, SUIT, TURN_TYPE } from "../../types";
 import Deck from "../model/Deck";
 import Player from "../model/Player";
 import PlayerViewModel from "../viewModel/Player.vm";
@@ -16,6 +16,7 @@ import MessageHandler from "../presenter/MessageHandler";
 import UserTable from "../components/User/UserTable";
 import Controllers from "../components/controllers/Controllers";
 import DeckViewModel from "../viewModel/Deck.vm";
+import GameStartButton from "../components/controllers/GameStartButton";
 
 class Game extends Phaser.Scene implements IViewModelListener {
 	private playersViewModel: PlayerViewModel;
@@ -25,7 +26,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	private connectionViewModel: ConnectionViewModel;
 	private deckViewModel: DeckViewModel;
 	private messageHandler: MessageHandler;
-	private buttonComponent: Button;
+	private gameStartButton: GameStartButton;
 	private textComponent: Text;
 	private userName: string;
 
@@ -56,6 +57,8 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			potMoney: this.potViewModel?.state.pot || 0,
 		});
 		this.textComponent.update(this.potViewModel?.state.pot || 0);
+		this.gameStartButton.update();
+		console.log(this.myViewModel);
 	}
 
 	render() {
@@ -67,6 +70,18 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			playerState: this.myViewModel?.state.user.state || 0,
 		});
 		this.myViewModel?.state.user.cards && this.myUserComponent.setMyCards(this.myViewModel?.state.user.cards || []);
+		this.gameStartButton = new GameStartButton(this, {
+			turnViewModel: this.turnViewModel,
+			onClick: () => {
+				const message: IMessage<TURN_TYPE> = {
+					type: "turnSet",
+					from: this.myViewModel.state.user.id,
+					data: TURN_TYPE.START,
+				};
+				this.connectionViewModel.broadCast(JSON.stringify(message));
+			},
+			myViewModel: this.myViewModel,
+		});
 		this.contorollerComponent = new Controllers(this, {
 			onCall: () => {
 				this.myViewModel.call(this.potViewModel.state.bet);
@@ -136,10 +151,10 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		});
 
 		this.textComponent = new Text(this);
-		this.buttonComponent = new Button(this);
 		this.playersViewModel.subscribe(this);
 		this.myViewModel.subscribe(this);
 		this.potViewModel.subscribe(this);
+		this.turnViewModel.subscribe(this);
 		this.createConnection();
 		this.render();
 	}

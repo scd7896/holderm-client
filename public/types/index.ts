@@ -37,6 +37,7 @@ export interface IJoinEventProp {
 }
 
 export enum TURN_TYPE {
+	READY,
 	START,
 	PRE_PLOP,
 	PLOP,

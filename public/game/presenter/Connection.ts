@@ -192,6 +192,8 @@ class ConnectionViewModel {
 				this.myViewModel.hostSet(true);
 			}
 
+			const joinMembers = otherPlayers.filter((player) => player.isJoin);
+			my.isHost = joinMembers.length === 0;
 			this.playerViewModel.userSets(otherPlayers);
 			this.myViewModel.playerSet(my, myNumber);
 		});

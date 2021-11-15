@@ -40,8 +40,15 @@ class MessageHandler {
 			case "deckSet": {
 				this.deckSet(message);
 			}
+			case "turnSet": {
+				this.turnSet(message);
+			}
 			default:
 		}
+	}
+
+	turnSet(message) {
+		this.turnViewModel.turnSet(message.data);
 	}
 
 	deckSet(message) {
