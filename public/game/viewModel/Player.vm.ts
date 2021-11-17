@@ -46,10 +46,15 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 		});
 	}
 
-	cardSet(cards: [Card, Card]) {
-		this.setState({
-			players: this.state.players.map((player) => (player.cards = cards)),
-		});
+	cardSet(id: string, cards: [Card, Card]) {
+		const index = this.state.players.findIndex((player) => player.id === id);
+		if (index !== -1) {
+			this.state.players[index].cards = cards;
+
+			this.setState({
+				players: this.state.players,
+			});
+		}
 	}
 
 	playerSet(index: number, state: PlayerState) {

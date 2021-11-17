@@ -1,4 +1,4 @@
-import { IMessage } from "../../types";
+import { IMessage, TURN_TYPE } from "../../types";
 import UserTable from "../components/User/UserTable";
 import DeckViewModel from "../viewModel/Deck.vm";
 import MyViewModel from "../viewModel/My.vm";
@@ -53,6 +53,23 @@ class MessageHandler {
 
 	deckSet(message) {
 		this.deckViewModel.setDeck(message.data);
+		setTimeout(() => {
+			this.turnViewModel.turnSet(TURN_TYPE.PRE_PLOP);
+			const myIndex = this.myViewModel.state.number;
+			const players = [];
+			let flag = true;
+
+			this.playersViewModel.state.players.map((player, index) => {
+				if (index === myIndex) {
+					const firstCard = this.deckViewModel.popCard();
+					const secondCard = this.deckViewModel.popCard();
+					this.myViewModel.myCardSet([firstCard, secondCard]);
+				}
+				const firstCard = this.deckViewModel.popCard();
+				const secondCard = this.deckViewModel.popCard();
+				this.playersViewModel.cardSet(player.id, [firstCard, secondCard]);
+			});
+		}, 500);
 	}
 
 	betting(message) {

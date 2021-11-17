@@ -41,7 +41,6 @@ class GameStartButton extends Phaser.GameObjects.Group {
 			});
 
 			button.on("pointerdown", () => {
-				console.log("testtest");
 				this.turnViewModel.gameStart();
 				this.onClick();
 			});
