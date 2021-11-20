@@ -39,17 +39,13 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	}
 
 	stateUpdate() {
-		if (this.myViewModel?.state.isHost && !this.deckViewModel?.state.card?.length) {
-			const cards = this.createCards();
-			const deck = new Deck(cards);
-			deck.shuffle();
-			this.deckViewModel.setDeck(deck.card);
-		}
 		this.userTableComponent?.update(this.playersViewModel?.state.players || []);
 		this.myUserComponent?.update({
 			stackMoney: this.myViewModel?.state.user.stackMoney || 0,
 			isConnection: true,
 			playerState: this.myViewModel?.state.user.state || 0,
+			cards: this.myViewModel?.state.user.cards,
+			isMy: true,
 		});
 		this.contorollerComponent?.update({
 			myStackMoney: this.myViewModel?.state.user.stackMoney || 0,
@@ -58,7 +54,6 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		});
 		this.textComponent.update(this.potViewModel?.state.pot || 0);
 		this.gameStartButton.update();
-		console.log(this.myViewModel);
 	}
 
 	render() {
@@ -68,6 +63,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			stackMoney: this.myViewModel?.state.user.stackMoney || 0,
 			isConnection: true,
 			playerState: this.myViewModel?.state.user.state || 0,
+			isMy: true,
 		});
 		this.myViewModel?.state.user.cards && this.myUserComponent.setMyCards(this.myViewModel?.state.user.cards || []);
 		this.gameStartButton = new GameStartButton(this, {
@@ -79,6 +75,30 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: TURN_TYPE.START,
 				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
+				const cards = this.createCards();
+				const deck = new Deck(cards);
+				deck.shuffle();
+				this.deckViewModel.setDeck(deck.card);
+				const deckSendMessage: IMessage<Card[]> = {
+					type: "deckSet",
+					from: this.myViewModel.state.user.id,
+					data: deck.card,
+				};
+				this.connectionViewModel.broadCast(JSON.stringify(deckSendMessage));
+				setTimeout(() => {
+					this.turnViewModel.turnSet(TURN_TYPE.PRE_PLOP);
+					const myIndex = this.myViewModel.state.number;
+					this.playersViewModel.state.players.map((player, index) => {
+						if (index === myIndex) {
+							const firstCard = this.deckViewModel.popCard();
+							const secondCard = this.deckViewModel.popCard();
+							this.myViewModel.myCardSet([firstCard, secondCard]);
+						}
+						const firstCard = this.deckViewModel.popCard();
+						const secondCard = this.deckViewModel.popCard();
+						this.playersViewModel.cardSet(player.id, [firstCard, secondCard]);
+					});
+				}, 500);
 			},
 			myViewModel: this.myViewModel,
 		});

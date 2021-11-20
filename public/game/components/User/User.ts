@@ -8,6 +8,8 @@ interface IProp {
 	stackMoney: number;
 	isConnection: boolean;
 	playerState: PlayerState;
+	cards?: Card[];
+	isMy: boolean;
 }
 
 class User extends Phaser.GameObjects.Group {
@@ -17,6 +19,8 @@ class User extends Phaser.GameObjects.Group {
 	private isConnection: boolean;
 	private stackMoney: number;
 	private playerState: PlayerState;
+	private cards?: Card[];
+	private isMy: boolean;
 
 	private connectionText: Phaser.GameObjects.Text;
 	private moneyText: Phaser.GameObjects.Text;
@@ -30,6 +34,8 @@ class User extends Phaser.GameObjects.Group {
 		this.stackMoney = prop.stackMoney;
 		this.isConnection = prop.isConnection;
 		this.playerState = prop.playerState;
+		this.cards = prop.cards;
+		this.isMy = prop.isMy;
 		this.betTextRender();
 		this.render();
 	}
@@ -53,12 +59,20 @@ class User extends Phaser.GameObjects.Group {
 		);
 		this.add(this.moneyText);
 		this.betTextRender();
+		if (this.cards) {
+			if (this.isMy) {
+				this.setMyCards(this.cards);
+			} else {
+				this.setCards();
+			}
+		}
 	}
 
 	update(prop: Omit<IProp, "x" | "y">) {
 		this.stackMoney = prop.stackMoney;
 		this.isConnection = prop.isConnection;
 		this.playerState = prop.playerState;
+		this.cards = prop.cards;
 
 		if (this.isConnection) {
 			this.remove(this.connectionText);
@@ -66,6 +80,13 @@ class User extends Phaser.GameObjects.Group {
 		this.moneyText.text = this.stackMoney.toString();
 		this.moneyText.updateText();
 		this.betTextRender();
+		if (this.cards) {
+			if (this.isMy) {
+				this.setMyCards(this.cards);
+			} else {
+				this.setCards();
+			}
+		}
 	}
 
 	betTextRender() {
