@@ -41,11 +41,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	stateUpdate() {
 		this.userTableComponent?.update(this.playersViewModel?.state.players || []);
 		this.myUserComponent?.update({
-			stackMoney: this.myViewModel?.state.user.stackMoney || 0,
-			isConnection: true,
-			playerState: this.myViewModel?.state.user.state || 0,
-			cards: this.myViewModel?.state.user.cards,
-			isMy: true,
+			player: this.myViewModel.state.user,
 		});
 		this.contorollerComponent?.update({
 			myStackMoney: this.myViewModel?.state.user.stackMoney || 0,
@@ -54,16 +50,15 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		});
 		this.textComponent.update(this.potViewModel?.state.pot || 0);
 		this.gameStartButton.update();
+		console.log(this.playersViewModel);
+		console.log(this.myViewModel);
 	}
 
 	render() {
 		this.myUserComponent = new User(this, {
 			x: 40,
 			y: 30,
-			stackMoney: this.myViewModel?.state.user.stackMoney || 0,
-			isConnection: true,
-			playerState: this.myViewModel?.state.user.state || 0,
-			isMy: true,
+			player: this.myViewModel.state.user,
 		});
 		this.myViewModel?.state.user.cards && this.myUserComponent.setMyCards(this.myViewModel?.state.user.cards || []);
 		this.gameStartButton = new GameStartButton(this, {
@@ -88,16 +83,24 @@ class Game extends Phaser.Scene implements IViewModelListener {
 				setTimeout(() => {
 					this.turnViewModel.turnSet(TURN_TYPE.PRE_PLOP);
 					const myIndex = this.myViewModel.state.number;
+					let flag = true;
 					this.playersViewModel.state.players.map((player, index) => {
 						if (index === myIndex) {
 							const firstCard = this.deckViewModel.popCard();
 							const secondCard = this.deckViewModel.popCard();
 							this.myViewModel.myCardSet([firstCard, secondCard]);
+							flag = false;
 						}
 						const firstCard = this.deckViewModel.popCard();
 						const secondCard = this.deckViewModel.popCard();
 						this.playersViewModel.cardSet(player.id, [firstCard, secondCard]);
 					});
+
+					if (flag) {
+						const firstCard = this.deckViewModel.popCard();
+						const secondCard = this.deckViewModel.popCard();
+						this.myViewModel.myCardSet([firstCard, secondCard]);
+					}
 				}, 500);
 			},
 			myViewModel: this.myViewModel,

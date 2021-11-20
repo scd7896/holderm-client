@@ -1,41 +1,31 @@
 import { Card } from "../../../types";
 import { getPercentPixel } from "../../../utils/getPercentPixel";
-import { PlayerState } from "../../model/Player";
+import Player, { PlayerState } from "../../model/Player";
 
 interface IProp {
 	x: number;
 	y: number;
-	stackMoney: number;
-	isConnection: boolean;
-	playerState: PlayerState;
-	cards?: Card[];
-	isMy: boolean;
+
+	player: Player;
 }
 
 class User extends Phaser.GameObjects.Group {
 	private x: number;
 	private y: number;
 	private target: Phaser.Scene;
-	private isConnection: boolean;
-	private stackMoney: number;
-	private playerState: PlayerState;
-	private cards?: Card[];
-	private isMy: boolean;
+	private player: Player;
 
 	private connectionText: Phaser.GameObjects.Text;
 	private moneyText: Phaser.GameObjects.Text;
 	private betedText: Phaser.GameObjects.Text;
+	private nicknameText: Phaser.GameObjects.Text;
 
 	constructor(target: Phaser.Scene, prop: IProp) {
 		super(target);
 		this.target = target;
 		this.x = getPercentPixel(prop.x);
 		this.y = getPercentPixel(prop.y);
-		this.stackMoney = prop.stackMoney;
-		this.isConnection = prop.isConnection;
-		this.playerState = prop.playerState;
-		this.cards = prop.cards;
-		this.isMy = prop.isMy;
+		this.player = prop.player;
 		this.betTextRender();
 		this.render();
 	}
@@ -43,7 +33,7 @@ class User extends Phaser.GameObjects.Group {
 	render() {
 		this.add(this.target.add.circle(this.x, this.y, getPercentPixel(3), 0xff0000));
 
-		if (!this.isConnection) {
+		if (!this.player.isConnection) {
 			this.connectionText = this.target.add.text(this.x - getPercentPixel(1), this.y + getPercentPixel(1), "연결중", {
 				fontSize: "14px",
 			});
@@ -52,16 +42,25 @@ class User extends Phaser.GameObjects.Group {
 		this.moneyText = this.target.add.text(
 			this.x - getPercentPixel(1),
 			this.y + getPercentPixel(4.5),
-			this.stackMoney.toString(),
+			this.player.stackMoney.toString(),
 			{
 				fontSize: "14px",
 			}
 		);
+		this.nicknameText = this.target.add.text(
+			this.x - getPercentPixel(1),
+			this.y + getPercentPixel(5.5),
+			this.player.nickname.toString(),
+			{
+				fontSize: "14px",
+			}
+		);
+		this.add(this.nicknameText);
 		this.add(this.moneyText);
 		this.betTextRender();
-		if (this.cards) {
-			if (this.isMy) {
-				this.setMyCards(this.cards);
+		if (this.player.cards) {
+			if (this.player.isMy) {
+				this.setMyCards(this.player.cards);
 			} else {
 				this.setCards();
 			}
@@ -69,20 +68,17 @@ class User extends Phaser.GameObjects.Group {
 	}
 
 	update(prop: Omit<IProp, "x" | "y">) {
-		this.stackMoney = prop.stackMoney;
-		this.isConnection = prop.isConnection;
-		this.playerState = prop.playerState;
-		this.cards = prop.cards;
+		this.player = prop.player;
 
-		if (this.isConnection) {
+		if (this.player.isConnection) {
 			this.remove(this.connectionText);
 		}
-		this.moneyText.text = this.stackMoney.toString();
+		this.moneyText.text = this.player.stackMoney.toString();
 		this.moneyText.updateText();
 		this.betTextRender();
-		if (this.cards) {
-			if (this.isMy) {
-				this.setMyCards(this.cards);
+		if (this.player.cards) {
+			if (this.player.isMy) {
+				this.setMyCards(this.player.cards);
 			} else {
 				this.setCards();
 			}
@@ -90,7 +86,7 @@ class User extends Phaser.GameObjects.Group {
 	}
 
 	betTextRender() {
-		if (this.playerState === PlayerState.CALL || this.playerState === PlayerState.RAISE) {
+		if (this.player.state === PlayerState.CALL || this.player.state === PlayerState.RAISE) {
 			if (!this.betedText) {
 				this.betedText = this.target.add.text(this.x - getPercentPixel(4), this.y - getPercentPixel(4), "베팅 참여함", {
 					fontSize: "14px",

@@ -56,19 +56,24 @@ class MessageHandler {
 		setTimeout(() => {
 			this.turnViewModel.turnSet(TURN_TYPE.PRE_PLOP);
 			const myIndex = this.myViewModel.state.number;
-			const players = [];
 			let flag = true;
-
 			this.playersViewModel.state.players.map((player, index) => {
 				if (index === myIndex) {
 					const firstCard = this.deckViewModel.popCard();
 					const secondCard = this.deckViewModel.popCard();
 					this.myViewModel.myCardSet([firstCard, secondCard]);
+					flag = false;
 				}
 				const firstCard = this.deckViewModel.popCard();
 				const secondCard = this.deckViewModel.popCard();
 				this.playersViewModel.cardSet(player.id, [firstCard, secondCard]);
 			});
+
+			if (flag) {
+				const firstCard = this.deckViewModel.popCard();
+				const secondCard = this.deckViewModel.popCard();
+				this.myViewModel.myCardSet([firstCard, secondCard]);
+			}
 		}, 500);
 	}
 

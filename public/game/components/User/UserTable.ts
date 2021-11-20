@@ -22,14 +22,11 @@ class UserTable extends Phaser.GameObjects.Layer {
 
 		this.userComponents = this.players
 			.filter(({ isMy }) => !isMy)
-			.map(({ stackMoney, isConnection, state }, index) => {
+			.map((player, index) => {
 				return new User(target, {
 					x: positions[index][0],
 					y: positions[index][1],
-					stackMoney: stackMoney,
-					isConnection,
-					playerState: state,
-					isMy: false,
+					player,
 				});
 			});
 	}
@@ -53,15 +50,11 @@ class UserTable extends Phaser.GameObjects.Layer {
 		this.players = players;
 		this.userComponents = this.players
 			.filter(({ isMy }) => !isMy)
-			.map(({ stackMoney, isConnection, state, cards }, index) => {
+			.map((player, index) => {
 				return new User(this.target, {
 					x: positions[index][0],
 					y: positions[index][1],
-					stackMoney: stackMoney,
-					isConnection,
-					playerState: state,
-					cards: cards,
-					isMy: false,
+					player,
 				});
 			});
 	}
