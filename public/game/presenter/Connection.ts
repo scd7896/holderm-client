@@ -159,7 +159,9 @@ class ConnectionViewModel {
 					const pc = getConnection(data.you.socketId, socketId);
 					this.createDataChannel(pc, socketId);
 					this.rtcConnections[socketId] = pc;
-					pc.createOffer().then(async (sdp) => {
+					pc.createOffer({
+						iceRestart: true,
+					}).then(async (sdp) => {
 						await pc.setLocalDescription(new RTCSessionDescription(sdp));
 						socket.emit("offer", { sdp, toSocketId: socketId, payload: my });
 					});
