@@ -81,6 +81,9 @@ class MessageHandler {
 		this.playersViewModel.callBet(message.from, message.data);
 		this.potViewModel.bet(message.data);
 		this.userTableComponent.whoSend(message.from, "call", message.data);
+		setTimeout(() => {
+			this.turnViewModel.hasGoNextTurn([...this.playersViewModel.state.players, this.myViewModel.state.user]);
+		}, 100);
 	}
 
 	raise(message) {
@@ -93,6 +96,9 @@ class MessageHandler {
 
 	fold(message) {
 		this.userTableComponent.whoFold(message.from);
+		setTimeout(() => {
+			this.turnViewModel.hasGoNextTurn([...this.playersViewModel.state.players, this.myViewModel.state.user]);
+		}, 100);
 	}
 }
 

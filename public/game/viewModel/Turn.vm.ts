@@ -3,6 +3,7 @@ import { TURN_TYPE } from "../../types";
 import Player, { PlayerState } from "../model/Player";
 
 class TurnViewModel extends ACViewModel<{ turn: TURN_TYPE; turnPlayer: number }> {
+	private nowTurn: TURN_TYPE;
 	constructor(turn: TURN_TYPE = TURN_TYPE.READY, turnPlayer: number = 0) {
 		super({ turn, turnPlayer });
 	}
@@ -12,7 +13,8 @@ class TurnViewModel extends ACViewModel<{ turn: TURN_TYPE; turnPlayer: number }>
 			return acc && player.state !== PlayerState.LIVE;
 		}, true);
 
-		if (result) {
+		if (result && this.nowTurn !== this.state.turn) {
+			this.nowTurn = this.state.turn + 1;
 			this.setState({
 				turn: this.state.turn + 1,
 			});

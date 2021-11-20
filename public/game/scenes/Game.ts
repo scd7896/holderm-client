@@ -17,6 +17,7 @@ import UserTable from "../components/User/UserTable";
 import Controllers from "../components/controllers/Controllers";
 import DeckViewModel from "../viewModel/Deck.vm";
 import GameStartButton from "../components/controllers/GameStartButton";
+import ShareBoard from "../components/shareBoard/ShareBoard";
 
 class Game extends Phaser.Scene implements IViewModelListener {
 	private playersViewModel: PlayerViewModel;
@@ -33,6 +34,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	private userTableComponent: UserTable;
 	private myUserComponent: User;
 	private contorollerComponent: Controllers;
+	private shareBoardComponents: ShareBoard;
 
 	preload() {
 		this.load.atlas("cards", "/assets/cards.png", "/assets/cards.json");
@@ -50,6 +52,12 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		});
 		this.textComponent.update(this.potViewModel?.state.pot || 0);
 		this.gameStartButton.update();
+		this.shareBoardComponents.update({
+			turnViewModel: this.turnViewModel,
+			playersViewModel: this.playersViewModel,
+			myViewModel: this.myViewModel,
+			deckViewModel: this.deckViewModel,
+		});
 		console.log(this.playersViewModel);
 		console.log(this.myViewModel);
 	}
@@ -59,6 +67,14 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			x: 40,
 			y: 30,
 			player: this.myViewModel.state.user,
+		});
+		this.shareBoardComponents = new ShareBoard(this, {
+			x: 30,
+			y: 15,
+			turnViewModel: this.turnViewModel,
+			playersViewModel: this.playersViewModel,
+			myViewModel: this.myViewModel,
+			deckViewModel: this.deckViewModel,
 		});
 		this.myViewModel?.state.user.cards && this.myUserComponent.setMyCards(this.myViewModel?.state.user.cards || []);
 		this.gameStartButton = new GameStartButton(this, {
@@ -116,7 +132,9 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: this.potViewModel.state.bet,
 				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
-				this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
+				setTimeout(() => {
+					this.turnViewModel.hasGoNextTurn([...this.playersViewModel.state.players, this.myViewModel.state.user]);
+				}, 100);
 			},
 			onRaise: (money) => {
 				this.potViewModel.state.bet = money;
@@ -140,7 +158,9 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: 0,
 				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
-				this.turnViewModel.hasGoNextTurn(this.playersViewModel.state.players);
+				setTimeout(() => {
+					this.turnViewModel.hasGoNextTurn([...this.playersViewModel.state.players, this.myViewModel.state.user]);
+				}, 100);
 			},
 			myStackMoney: this.myViewModel?.state.user.stackMoney || 0,
 			lastBetMoney: this.potViewModel.state.bet,

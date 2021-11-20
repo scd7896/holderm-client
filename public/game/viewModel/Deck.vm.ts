@@ -3,13 +3,19 @@ import { Card } from "../../types";
 
 import Deck from "../model/Deck";
 
-class DeckViewModel extends ACViewModel<{ cards: Card[] }> {
+class DeckViewModel extends ACViewModel<{ cards: Card[]; boardCards: Card[] }> {
 	constructor() {
-		super({ cards: [] });
+		super({ cards: [], boardCards: [] });
 	}
 
 	setDeck(cards: Card[]) {
 		this.setState({ cards });
+	}
+
+	boardCardsSet(cards: Card[]) {
+		this.setState({
+			boardCards: cards,
+		});
 	}
 
 	suffle() {
@@ -27,7 +33,7 @@ class DeckViewModel extends ACViewModel<{ cards: Card[] }> {
 
 	popCard() {
 		const card = this.state.cards.pop();
-		this.setState(new Deck(this.state.cards));
+		this.setState({ cards: this.state.cards });
 		return card;
 	}
 }
