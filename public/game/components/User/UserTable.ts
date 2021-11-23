@@ -45,7 +45,7 @@ class UserTable extends Phaser.GameObjects.Layer {
 		}
 	}
 
-	update(players: Player[]) {
+	update(players: Player[], turn: number) {
 		this.userComponents.map((user) => user.destroy(true));
 		this.players = players;
 		this.userComponents = this.players
@@ -55,6 +55,7 @@ class UserTable extends Phaser.GameObjects.Layer {
 					x: positions[index][0],
 					y: positions[index][1],
 					player,
+					turn,
 				});
 			});
 	}

@@ -79,7 +79,6 @@ class RaiseMenu extends Phaser.GameObjects.Group implements IViewModelListener {
 		const [submitButtton, textComponent] = this.buttonComponent.playRaiseSubmitButton();
 
 		submitButtton.on("pointerdown", () => {
-			console.log("에반데");
 			const selectedIndex = this.raiseMenuViewModel.state.selectedIndex;
 			if (selectedIndex !== -1) {
 				this.props.onRaiseSubmit(berRaiseType[selectedIndex]);

@@ -22,7 +22,6 @@ class GameStartButton extends Phaser.GameObjects.Group {
 	}
 
 	update() {
-		console.log("test", this.myViewModel);
 		if (!this.myViewModel.state.user.isHost) return null;
 		if (this.turnViewModel.state.turn === TURN_TYPE.READY) {
 			const button = this.scene.add.rectangle(

@@ -41,10 +41,13 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	}
 
 	stateUpdate() {
-		this.userTableComponent?.update(this.playersViewModel?.state.players || []);
-		this.myUserComponent?.update({
-			player: this.myViewModel.state.user,
-		});
+		this.userTableComponent?.update(this.playersViewModel?.state.players || [], this.turnViewModel.state.turnPlayer);
+		this.myUserComponent?.update(
+			{
+				player: this.myViewModel.state.user,
+			},
+			this.turnViewModel.state.turnPlayer
+		);
 		this.contorollerComponent?.update({
 			myStackMoney: this.myViewModel?.state.user.stackMoney || 0,
 			lastBetMoney: this.potViewModel.state.bet,
@@ -58,8 +61,9 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			myViewModel: this.myViewModel,
 			deckViewModel: this.deckViewModel,
 		});
-		console.log(this.playersViewModel);
-		console.log(this.myViewModel);
+		console.log(this.turnViewModel.state);
+		console.log(this.playersViewModel.state);
+		console.log(this.myViewModel.state);
 	}
 
 	render() {
@@ -132,8 +136,20 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: this.potViewModel.state.bet,
 				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
+				const nextNumber = this.playersViewModel.getNextPlayerIndex(
+					this.myViewModel.state.user.id,
+					this.myViewModel.state.user
+				);
+				this.turnViewModel.turnPlayerSet(nextNumber);
 				setTimeout(() => {
-					this.turnViewModel.hasGoNextTurn([...this.playersViewModel.state.players, this.myViewModel.state.user]);
+					const result = this.turnViewModel.hasGoNextTurn([
+						...this.playersViewModel.state.players,
+						this.myViewModel.state.user,
+					]);
+					if (result) {
+						this.playersViewModel.ohtherUserSetAction(this.myViewModel.state.user.id);
+						this.myViewModel.stateInitalize();
+					}
 				}, 100);
 			},
 			onRaise: (money) => {
@@ -147,6 +163,11 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: this.potViewModel.state.bet,
 				};
 				this.playersViewModel.ohtherUserSetAction(this.myViewModel.state.user.id);
+				const nextNumber = this.playersViewModel.getNextPlayerIndex(
+					this.myViewModel.state.user.id,
+					this.myViewModel.state.user
+				);
+				this.turnViewModel.turnPlayerSet(nextNumber);
 				this.connectionViewModel.broadCast(JSON.stringify(message));
 			},
 			onFold: () => {
@@ -158,8 +179,20 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: 0,
 				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
+				const nextNumber = this.playersViewModel.getNextPlayerIndex(
+					this.myViewModel.state.user.id,
+					this.myViewModel.state.user
+				);
+				this.turnViewModel.turnPlayerSet(nextNumber);
 				setTimeout(() => {
-					this.turnViewModel.hasGoNextTurn([...this.playersViewModel.state.players, this.myViewModel.state.user]);
+					const result = this.turnViewModel.hasGoNextTurn([
+						...this.playersViewModel.state.players,
+						this.myViewModel.state.user,
+					]);
+					if (result) {
+						this.playersViewModel.ohtherUserSetAction(this.myViewModel.state.user.id);
+						this.myViewModel.stateInitalize();
+					}
 				}, 100);
 			},
 			myStackMoney: this.myViewModel?.state.user.stackMoney || 0,
@@ -175,7 +208,14 @@ class Game extends Phaser.Scene implements IViewModelListener {
 		this.playersViewModel = new PlayerViewModel();
 		this.turnViewModel = new TurnViewModel();
 		this.deckViewModel = new DeckViewModel();
-		const player = new Player({ stackMoney: 8000, id: "", isMy: true, isHost: false, nickname: this.userName });
+		const player = new Player({
+			stackMoney: 8000,
+			id: "",
+			isMy: true,
+			isHost: false,
+			nickname: this.userName,
+			number: 0,
+		});
 		this.myViewModel = new MyViewModel(player, 0);
 		this.userTableComponent = new UserTable(this, this.playersViewModel.state.players);
 

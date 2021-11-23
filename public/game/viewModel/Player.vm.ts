@@ -136,6 +136,16 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 			}),
 		});
 	}
+
+	getNextPlayerIndex(id: string, myPlayer: Player) {
+		const allPlayers = [...this.state.players, myPlayer].sort((a, b) => a.number - b.number);
+
+		for (let i = (myPlayer.number + 1) % allPlayers.length; i !== myPlayer.number; i = (i + 1) % allPlayers.length) {
+			if (allPlayers[i].state === PlayerState.LIVE) {
+				return allPlayers[i].number;
+			}
+		}
+	}
 }
 
 export default PlayerViewModel;

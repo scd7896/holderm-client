@@ -18,7 +18,10 @@ class TurnViewModel extends ACViewModel<{ turn: TURN_TYPE; turnPlayer: number }>
 			this.setState({
 				turn: this.state.turn + 1,
 			});
+			return true;
 		}
+
+		return false;
 	}
 
 	turnSet(turn: TURN_TYPE) {
@@ -30,6 +33,12 @@ class TurnViewModel extends ACViewModel<{ turn: TURN_TYPE; turnPlayer: number }>
 	gameStart() {
 		this.setState({
 			turn: TURN_TYPE.START,
+		});
+	}
+
+	turnPlayerSet(number: number) {
+		this.setState({
+			turnPlayer: number,
 		});
 	}
 }

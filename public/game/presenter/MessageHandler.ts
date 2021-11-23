@@ -82,7 +82,16 @@ class MessageHandler {
 		this.potViewModel.bet(message.data);
 		this.userTableComponent.whoSend(message.from, "call", message.data);
 		setTimeout(() => {
-			this.turnViewModel.hasGoNextTurn([...this.playersViewModel.state.players, this.myViewModel.state.user]);
+			const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
+			this.turnViewModel.turnPlayerSet(nextTurn);
+			const result = this.turnViewModel.hasGoNextTurn([
+				...this.playersViewModel.state.players,
+				this.myViewModel.state.user,
+			]);
+			if (result) {
+				this.playersViewModel.ohtherUserSetAction("");
+				this.myViewModel.stateInitalize();
+			}
 		}, 100);
 	}
 
@@ -92,12 +101,23 @@ class MessageHandler {
 		this.playersViewModel.ohtherUserSetAction(message.from);
 		this.userTableComponent.whoSend(message.from, "raise", message.data);
 		this.myViewModel.stateInitalize();
+		const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
+		this.turnViewModel.turnPlayerSet(nextTurn);
 	}
 
 	fold(message) {
 		this.userTableComponent.whoFold(message.from);
 		setTimeout(() => {
-			this.turnViewModel.hasGoNextTurn([...this.playersViewModel.state.players, this.myViewModel.state.user]);
+			const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
+			this.turnViewModel.turnPlayerSet(nextTurn);
+			const result = this.turnViewModel.hasGoNextTurn([
+				...this.playersViewModel.state.players,
+				this.myViewModel.state.user,
+			]);
+			if (result) {
+				this.playersViewModel.ohtherUserSetAction("");
+				this.myViewModel.stateInitalize();
+			}
 		}, 100);
 	}
 }

@@ -111,6 +111,7 @@ class ConnectionViewModel {
 						isMy: false,
 						isHost: false,
 						nickname: payload.nickname,
+						number: index,
 					}),
 					this.playerViewModel.state.players.length
 				);
@@ -152,6 +153,7 @@ class ConnectionViewModel {
 				stackMoney: 8000,
 				isHost: false,
 				nickname: data.you.nickname,
+				number: myNumber,
 			});
 
 			const allUsers = data.users.map(({ socketId, nickname, join }) => {
@@ -183,6 +185,7 @@ class ConnectionViewModel {
 						id: allUsers[i].socketId,
 						isHost: false,
 						nickname: allUsers[i].nickname,
+						number: i,
 					});
 					otherPlayers.push(player);
 				}

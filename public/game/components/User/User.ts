@@ -5,8 +5,8 @@ import Player, { PlayerState } from "../../model/Player";
 interface IProp {
 	x: number;
 	y: number;
-
 	player: Player;
+	turn?: number;
 }
 
 class User extends Phaser.GameObjects.Group {
@@ -19,6 +19,7 @@ class User extends Phaser.GameObjects.Group {
 	private moneyText: Phaser.GameObjects.Text;
 	private betedText: Phaser.GameObjects.Text;
 	private nicknameText: Phaser.GameObjects.Text;
+	private turnView: Phaser.GameObjects.Rectangle;
 
 	constructor(target: Phaser.Scene, prop: IProp) {
 		super(target);
@@ -28,6 +29,16 @@ class User extends Phaser.GameObjects.Group {
 		this.player = prop.player;
 		this.betTextRender();
 		this.render();
+		if (this.player.number === prop.turn) {
+			this.turnView = this.target.add.rectangle(
+				this.x + getPercentPixel(1),
+				this.y + getPercentPixel(1),
+				30,
+				30,
+				0xff00ff,
+				1
+			);
+		}
 	}
 
 	render() {
@@ -67,8 +78,30 @@ class User extends Phaser.GameObjects.Group {
 		}
 	}
 
-	update(prop: Omit<IProp, "x" | "y">) {
+	update(prop: Omit<IProp, "x" | "y">, turn: number) {
 		this.player = prop.player;
+
+		if (this.player.number === turn) {
+			if (this.turnView) {
+				this.turnView.setVisible(true);
+				this.turnView.update();
+			} else {
+				this.turnView = this.target.add.rectangle(
+					this.x + getPercentPixel(-3),
+					this.y + getPercentPixel(-3),
+					30,
+					30,
+					0xff00ff,
+					1
+				);
+			}
+			console.log("added");
+		} else {
+			if (this.turnView) {
+				this.turnView.setVisible(false);
+				this.turnView.update();
+			}
+		}
 
 		if (this.player.isConnection) {
 			this.remove(this.connectionText);
