@@ -82,8 +82,6 @@ class MessageHandler {
 		this.potViewModel.bet(message.data);
 		this.userTableComponent.whoSend(message.from, "call", message.data);
 		setTimeout(() => {
-			const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
-			this.turnViewModel.turnPlayerSet(nextTurn);
 			const result = this.turnViewModel.hasGoNextTurn([
 				...this.playersViewModel.state.players,
 				this.myViewModel.state.user,
@@ -91,6 +89,13 @@ class MessageHandler {
 			if (result) {
 				this.playersViewModel.ohtherUserSetAction("");
 				this.myViewModel.stateInitalize();
+				setTimeout(() => {
+					const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
+					this.turnViewModel.turnPlayerSet(nextTurn);
+				}, 100);
+			} else {
+				const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
+				this.turnViewModel.turnPlayerSet(nextTurn);
 			}
 		}, 100);
 	}
@@ -108,8 +113,6 @@ class MessageHandler {
 	fold(message) {
 		this.userTableComponent.whoFold(message.from);
 		setTimeout(() => {
-			const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
-			this.turnViewModel.turnPlayerSet(nextTurn);
 			const result = this.turnViewModel.hasGoNextTurn([
 				...this.playersViewModel.state.players,
 				this.myViewModel.state.user,
@@ -117,6 +120,13 @@ class MessageHandler {
 			if (result) {
 				this.playersViewModel.ohtherUserSetAction("");
 				this.myViewModel.stateInitalize();
+				setTimeout(() => {
+					const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
+					this.turnViewModel.turnPlayerSet(nextTurn);
+				}, 100);
+			} else {
+				const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
+				this.turnViewModel.turnPlayerSet(nextTurn);
 			}
 		}, 100);
 	}

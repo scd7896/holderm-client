@@ -28,17 +28,24 @@ class User extends Phaser.GameObjects.Group {
 		this.y = getPercentPixel(prop.y);
 		this.player = prop.player;
 		this.betTextRender();
-		this.render();
+		this.turnView = this.target.add.rectangle(
+			this.x + getPercentPixel(-3),
+			this.y + getPercentPixel(-3),
+			30,
+			30,
+			0xff00ff,
+			1
+		);
+		this.add(this.turnView);
+		this.turnView.setVisible(false);
+		this.turnView.update();
+
 		if (this.player.number === prop.turn) {
-			this.turnView = this.target.add.rectangle(
-				this.x + getPercentPixel(1),
-				this.y + getPercentPixel(1),
-				30,
-				30,
-				0xff00ff,
-				1
-			);
+			this.turnView.setVisible(true);
+			this.turnView.update();
 		}
+
+		this.render();
 	}
 
 	render() {
@@ -82,25 +89,11 @@ class User extends Phaser.GameObjects.Group {
 		this.player = prop.player;
 
 		if (this.player.number === turn) {
-			if (this.turnView) {
-				this.turnView.setVisible(true);
-				this.turnView.update();
-			} else {
-				this.turnView = this.target.add.rectangle(
-					this.x + getPercentPixel(-3),
-					this.y + getPercentPixel(-3),
-					30,
-					30,
-					0xff00ff,
-					1
-				);
-			}
-			console.log("added");
+			this.turnView.setVisible(true);
+			this.turnView.update();
 		} else {
-			if (this.turnView) {
-				this.turnView.setVisible(false);
-				this.turnView.update();
-			}
+			this.turnView.setVisible(false);
+			this.turnView.update();
 		}
 
 		if (this.player.isConnection) {

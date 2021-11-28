@@ -46,8 +46,9 @@ class UserTable extends Phaser.GameObjects.Layer {
 	}
 
 	update(players: Player[], turn: number) {
-		this.userComponents.map((user) => user.destroy(true));
+		this.userComponents.map((user) => user.destroy(true, true));
 		this.players = players;
+		console.log("users", turn);
 		this.userComponents = this.players
 			.filter(({ isMy }) => !isMy)
 			.map((player, index) => {

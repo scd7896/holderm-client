@@ -129,7 +129,7 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 			players: this.state.players.map((player, i) => {
 				if (index !== i) {
 					if (player.state === PlayerState.CALL || player.state === PlayerState.RAISE) {
-						player.state = PlayerState.ACTION;
+						player.state = PlayerState.LIVE;
 					}
 				}
 				return player;
@@ -139,8 +139,9 @@ class PlayerViewModel extends ACViewModel<IPlayer> {
 
 	getNextPlayerIndex(id: string, myPlayer: Player) {
 		const allPlayers = [...this.state.players, myPlayer].sort((a, b) => a.number - b.number);
+		const index = allPlayers.findIndex((player) => player.id === id);
 
-		for (let i = (myPlayer.number + 1) % allPlayers.length; i !== myPlayer.number; i = (i + 1) % allPlayers.length) {
+		for (let i = (index + 1) % allPlayers.length; i !== index; i = (i + 1) % allPlayers.length) {
 			if (allPlayers[i].state === PlayerState.LIVE) {
 				return allPlayers[i].number;
 			}

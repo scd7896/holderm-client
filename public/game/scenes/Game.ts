@@ -18,6 +18,7 @@ import Controllers from "../components/controllers/Controllers";
 import DeckViewModel from "../viewModel/Deck.vm";
 import GameStartButton from "../components/controllers/GameStartButton";
 import ShareBoard from "../components/shareBoard/ShareBoard";
+import GameEventHandler from "../event/GameEventHandler";
 
 class Game extends Phaser.Scene implements IViewModelListener {
 	private playersViewModel: PlayerViewModel;
@@ -35,6 +36,8 @@ class Game extends Phaser.Scene implements IViewModelListener {
 	private myUserComponent: User;
 	private contorollerComponent: Controllers;
 	private shareBoardComponents: ShareBoard;
+
+	private gameEventHandler: GameEventHandler;
 
 	preload() {
 		this.load.atlas("cards", "/assets/cards.png", "/assets/cards.json");
@@ -136,11 +139,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: this.potViewModel.state.bet,
 				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
-				const nextNumber = this.playersViewModel.getNextPlayerIndex(
-					this.myViewModel.state.user.id,
-					this.myViewModel.state.user
-				);
-				this.turnViewModel.turnPlayerSet(nextNumber);
+
 				setTimeout(() => {
 					const result = this.turnViewModel.hasGoNextTurn([
 						...this.playersViewModel.state.players,
@@ -149,6 +148,16 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					if (result) {
 						this.playersViewModel.ohtherUserSetAction(this.myViewModel.state.user.id);
 						this.myViewModel.stateInitalize();
+						setTimeout(() => {
+							const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
+							this.turnViewModel.turnPlayerSet(nextTurn);
+						}, 100);
+					} else {
+						const nextNumber = this.playersViewModel.getNextPlayerIndex(
+							this.myViewModel.state.user.id,
+							this.myViewModel.state.user
+						);
+						this.turnViewModel.turnPlayerSet(nextNumber);
 					}
 				}, 100);
 			},
@@ -163,12 +172,14 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: this.potViewModel.state.bet,
 				};
 				this.playersViewModel.ohtherUserSetAction(this.myViewModel.state.user.id);
-				const nextNumber = this.playersViewModel.getNextPlayerIndex(
-					this.myViewModel.state.user.id,
-					this.myViewModel.state.user
-				);
-				this.turnViewModel.turnPlayerSet(nextNumber);
 				this.connectionViewModel.broadCast(JSON.stringify(message));
+				setTimeout(() => {
+					const nextNumber = this.playersViewModel.getNextPlayerIndex(
+						this.myViewModel.state.user.id,
+						this.myViewModel.state.user
+					);
+					this.turnViewModel.turnPlayerSet(nextNumber);
+				}, 500);
 			},
 			onFold: () => {
 				this.myViewModel.fold();
@@ -179,11 +190,7 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					data: 0,
 				};
 				this.connectionViewModel.broadCast(JSON.stringify(message));
-				const nextNumber = this.playersViewModel.getNextPlayerIndex(
-					this.myViewModel.state.user.id,
-					this.myViewModel.state.user
-				);
-				this.turnViewModel.turnPlayerSet(nextNumber);
+
 				setTimeout(() => {
 					const result = this.turnViewModel.hasGoNextTurn([
 						...this.playersViewModel.state.players,
@@ -192,6 +199,16 @@ class Game extends Phaser.Scene implements IViewModelListener {
 					if (result) {
 						this.playersViewModel.ohtherUserSetAction(this.myViewModel.state.user.id);
 						this.myViewModel.stateInitalize();
+						setTimeout(() => {
+							const nextTurn = this.playersViewModel.getNextPlayerIndex(message.from, this.myViewModel.state.user);
+							this.turnViewModel.turnPlayerSet(nextTurn);
+						}, 100);
+					} else {
+						const nextNumber = this.playersViewModel.getNextPlayerIndex(
+							this.myViewModel.state.user.id,
+							this.myViewModel.state.user
+						);
+						this.turnViewModel.turnPlayerSet(nextNumber);
 					}
 				}, 100);
 			},
@@ -227,6 +244,14 @@ class Game extends Phaser.Scene implements IViewModelListener {
 			userTable: this.userTableComponent,
 			deckViewModel: this.deckViewModel,
 		});
+
+		this.gameEventHandler = new GameEventHandler({
+			playersViewModel: this.playersViewModel,
+			myViewModel: this.myViewModel,
+			potViewModel: this.potViewModel,
+			turnViewModel: this.turnViewModel,
+		});
+
 		this.connectionViewModel = new ConnectionViewModel({
 			myViewModel: this.myViewModel,
 			playerViewModel: this.playersViewModel,
