@@ -4,6 +4,7 @@ import Player, { PlayerState } from "../model/Player";
 
 class TurnViewModel extends ACViewModel<{ turn: TURN_TYPE; turnPlayer: number }> {
 	private nowTurn: TURN_TYPE;
+	private firstPlayer: Player;
 	constructor(turn: TURN_TYPE = TURN_TYPE.READY, turnPlayer: number = 0) {
 		super({ turn, turnPlayer });
 	}
@@ -22,6 +23,10 @@ class TurnViewModel extends ACViewModel<{ turn: TURN_TYPE; turnPlayer: number }>
 		}
 
 		return false;
+	}
+
+	firstPlayerSet(player: Player) {
+		this.firstPlayer = player;
 	}
 
 	turnSet(turn: TURN_TYPE) {
